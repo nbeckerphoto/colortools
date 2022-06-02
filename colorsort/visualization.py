@@ -4,8 +4,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-import colorsort.config as conf
-from colorsort.cs_image_representation import CsImageRepresentation, HistogramColor
+import config as conf
+from cs_image_representation import CsImageRepresentation, HistogramColor
 
 
 def save(image, dest_path):
@@ -48,11 +48,13 @@ def save_spectrum_visualization(image_reps, dest, display=False):
     save(spectrum, dest)
 
 
-def get_histogram_as_bar(img_representation, dominant_color_only: bool=True, height=conf.DEFAULT_BAR_HEIGHT, width=conf.DEFAULT_BAR_WIDTH):
-    if dominant_color_only: 
+def get_histogram_as_bar(
+    img_representation, dominant_color_only: bool = True, height=conf.DEFAULT_BAR_HEIGHT, width=conf.DEFAULT_BAR_WIDTH
+):
+    if dominant_color_only:
         color_hist = [HistogramColor(img_representation.get_dominant_color(), 1)]
         print(f"{img_representation.image_path.stem} - {img_representation.get_dominant_color(hsv=True)}")
-    else: 
+    else:
         color_hist = img_representation.cluster_histogram
     bar = np.zeros((height, width, 3), np.uint8)
     start_y = 0

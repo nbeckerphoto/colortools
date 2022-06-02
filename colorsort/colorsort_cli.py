@@ -1,12 +1,13 @@
+#!/usr/bin/env python3
 import argparse
 from datetime import datetime
 from pathlib import Path
 
 from tqdm import tqdm
 
-import colorsort.config as conf
-import colorsort.visualization as vis
-from colorsort.cs_image_representation import CsImageRepresentation
+import config as conf
+import visualization as vis
+from cs_image_representation import CsImageRepresentation
 
 
 def parse_args():
@@ -42,7 +43,7 @@ def parse_args():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     args = parse_args()
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     print(args)
@@ -89,3 +90,7 @@ if __name__ == "__main__":
         vis.save_spectrum_visualization(combined, spectrum_dest)
 
     print("Done!")
+
+
+if __name__ == "__main__":
+    main()

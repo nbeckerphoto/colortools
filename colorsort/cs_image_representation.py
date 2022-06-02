@@ -10,9 +10,9 @@ import cv2
 import numpy as np
 from sklearn.cluster import KMeans
 
-import colorsort.config as conf
-import colorsort.heuristics as heuristics
-import colorsort.image_utils as image_utils
+import config as conf
+import heuristics as heuristics
+import image_utils as image_utils
 
 
 class HistogramColor:
@@ -58,7 +58,7 @@ class CsImageRepresentation:
             # self.n = heuristics.auto_k_hue(self.image_rgb)
             # self.n = heuristics.auto_k_hue_binned(self.image_rgb)
             self.n = heuristics.auto_k_binned_with_threshold(self.image_rgb)
-        else: 
+        else:
             self.n = n_clusters
 
         self.set_model_and_histogram(self.n)
