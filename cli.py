@@ -9,7 +9,7 @@ import colorsort.config as conf
 import colorsort.util as util
 import colorsort.visualization as vis
 from colorsort.analyzed_image import AnalyzedImage
-from colorsort.heuristics import HeuristicName
+from colorsort.heuristics import NHeuristic
 
 ANALYZE_PARSER = "analyze"
 SORT_PARSER = "sort"
@@ -33,18 +33,21 @@ def parse_args() -> argparse.Namespace:
     subparser_parent = argparse.ArgumentParser(add_help=False)
     subparser_parent.add_argument("input", type=Path, help="Input directory of .jpg files (or a single .jpg file).")
     subparser_parent.add_argument(
-        "--algorithm", type=util.DominantColorAlgorithm, default=util.DominantColorAlgorithm.HUE_DIST
+        "--algorithm",
+        type=util.DominantColorAlgorithm,
+        default=util.DominantColorAlgorithm.KMEANS,
+        help="The algorithm to use for determining the dominant color of images (k-means clustering by default).",
     )
     subparser_parent.add_argument(
-        "--n",
+        "--n_colors",
         type=int,
         default=conf.DEFAULT_N_COLORS,
         help="Number of dominant colors to compute.",
     )
     subparser_parent.add_argument(
         "--auto_n_heuristic",
-        type=HeuristicName,
-        default=HeuristicName.AUTO_N_BINNED_WITH_THRESHOLD,
+        type=NHeuristic,
+        default=NHeuristic.AUTO_N_BINNED_WITH_THRESHOLD,
         help="The heuristic used to set `n` for the clustering algorithm.",
     )
     subparser_parent.add_argument(
@@ -61,19 +64,16 @@ def parse_args() -> argparse.Namespace:
     )
     subparser_parent.add_argument(
         "--generate_chips_graphic",
-        "-c",
         action="store_true",
         help="Save chips visualization for each image.",
     )
     subparser_parent.add_argument(
         "--include_remapped_image",
-        "-r",
         action="store_true",
         help="Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.",
     )
     subparser_parent.add_argument(
         "--display",
-        "-d",
         action="store_true",
         help="Display generated graphics.",
     )
@@ -109,7 +109,7 @@ def main():
                 image_path=jpg_path,
                 resize_long_axis=conf.DEFAULT_RESIZE_LONG_AXIS,
                 dominant_color_algorithm=args.algorithm,
-                n_colors=args.n,
+                n_colors=args.n_colors,
                 auto_n_heuristic=args.auto_n_heuristic,
             )
         )
@@ -126,7 +126,7 @@ def main():
 
         if args.spectrum:
             print("Saving spectrum...")
-            filename = f"{timestamp}_spectrum_n={args.n}.jpg"
+            filename = f"{timestamp}_spectrum_n={args.n_colors}.jpg"
             spectrum_dest = Path(f"{args.output_dir}/spectrums/{filename}")
             vis.save_spectrum_visualization(all_image_reps, spectrum_dest)
 

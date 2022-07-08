@@ -5,10 +5,10 @@ A commandline tool for sorting images by their dominant color.
 There are two main routines: `analyze` and `sort`.
 
 ```
-$ python colorsort/cli.py --help
+$ python cli.py --help
 usage: cli.py [-h] {analyze,sort} ...
 
-CoLoRsOrT!
+ColorSort
 
 positional arguments:
   {analyze,sort}
@@ -19,11 +19,11 @@ optional arguments:
   -h, --help      show this help message and exit
 ```
 
-`analyze`: Given an image (or a directory thereof), determine the image's dominant colors. Graphics saved to disk at the supplied location.
+`analyze`: Given an image (or a directory thereof), determine the image's dominant colors. Graphics are saved to disk at the supplied location.
 ```
-$ python colorsort/cli.py analyze --help
-usage: cli.py analyze [-h] [--n N] [--auto_n_heuristic AUTO_N_HEURISTIC] [--no_enhance] [--orientation ORIENTATION] [--visualize] [--output_dir OUTPUT_DIR] [--chips]
-                      [--include_color_reduced]
+$ python cli.py analyze --help
+usage: cli.py analyze [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
+                      [--generate_chips_graphic] [--include_remapped_image] [--display]
                       input
 
 positional arguments:
@@ -31,25 +31,27 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --n N                 Number of clusters to use for determining dominant colors.
+  --algorithm ALGORITHM
+                        The algorithm to use for determining the dominant color of images (k-means clustering by default).
+  --n_colors N_COLORS   Number of dominant colors to compute.
   --auto_n_heuristic AUTO_N_HEURISTIC
                         The heuristic used to set `n` for the clustering algorithm.
-  --no_enhance          Enhance the colors that are computed for this image.
   --orientation ORIENTATION
                         The stacking orientation of any output graphics.
-  --visualize           Visualize graphics before saving them.
   --output_dir OUTPUT_DIR
                         Output directory for sorted .jpg files.
-  --chips               Save chips for each image.
-  --include_color_reduced
-                        Store the original image reduced to its dominant colors.
+  --generate_chips_graphic
+                        Save chips visualization for each image.
+  --include_remapped_image
+                        Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.
+  --display             Display generated graphics.
 ```
 
-`sort`: Given a directory, perform color analysis on all images therein, then save copies named by sorted order.
+`sort`: Given a directory, perform color analysis on all images therein, sort them by their dominant hue, then save copies prefixed with sorted order. 
 ```
-$ python colorsort/cli.py sort --help   
-usage: cli.py sort [-h] [--n N] [--auto_n_heuristic AUTO_N_HEURISTIC] [--no_enhance] [--orientation ORIENTATION] [--visualize] [--output_dir OUTPUT_DIR] [--chips] [--spectrum]
-                   [--anchor ANCHOR] [--reverse]
+$ python cli.py sort --help   
+usage: cli.py sort [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
+                   [--generate_chips_graphic] [--include_remapped_image] [--display] [--spectrum] [--anchor ANCHOR] [--reverse]
                    input
 
 positional arguments:
@@ -57,16 +59,20 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --n N                 Number of clusters to use for determining dominant colors.
+  --algorithm ALGORITHM
+                        The algorithm to use for determining the dominant color of images (k-means clustering by default).
+  --n_colors N_COLORS   Number of dominant colors to compute.
   --auto_n_heuristic AUTO_N_HEURISTIC
                         The heuristic used to set `n` for the clustering algorithm.
-  --no_enhance          Enhance the colors that are computed for this image.
   --orientation ORIENTATION
                         The stacking orientation of any output graphics.
-  --visualize           Visualize graphics before saving them.
   --output_dir OUTPUT_DIR
                         Output directory for sorted .jpg files.
-  --chips               Save chips for each image.
+  --generate_chips_graphic
+                        Save chips visualization for each image.
+  --include_remapped_image
+                        Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.
+  --display             Display generated graphics.
   --spectrum            Save spectrum image for the current collection of images.
   --anchor ANCHOR       Name of the first file in the sorted output sequence.
   --reverse             Reverse the color sort order.
