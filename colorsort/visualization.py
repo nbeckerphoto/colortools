@@ -1,20 +1,20 @@
 import os
 from pathlib import Path
-from typing import Union
+from typing import List, Union
 
-import cv2
 import numpy as np
+from PIL import Image, ImageOps
 
-import config as conf
-from image import Image
-from util import ImageOrientation
+import colorsort.config as conf
+from colorsort.analyzed_image import AnalyzedImage
+from colorsort.util import ImageOrientation
 
 # TODO refactor
 # TODO test
 # TODO docstrings
 
 
-def save(image: Union[Image, np.array], dest_path: Union[Path, str]):
+def save(image: Union[AnalyzedImage, Image.Image, np.array], dest_path: Union[Path, str]):
     """Save the provided image to disk.
 
     If the image is an image representation, create a hard link between the image's original file and
@@ -30,57 +30,217 @@ def save(image: Union[Image, np.array], dest_path: Union[Path, str]):
     dest_parent = dest_path.parents[0]
     _ = dest_parent.mkdir(parents=True, exist_ok=True)
 
-    if isinstance(image, Image):
+    if isinstance(image, AnalyzedImage):
         os.link(image.image_path, dest_path)
+    elif isinstance(image, Image.Image):
+        image.save(dest_path)
     else:
-        cv2.imwrite(str(dest_path), image)
+        image = Image.fromarray(image)
+        image.save(dest_path)
 
 
-def save_chips_visualization(image_representation: Image, dest: str, orientation: ImageOrientation, display: bool):
-    if orientation == ImageOrientation.AUTO:
-        orientation = image_representation.get_orientation()
+def save_chips_visualization(
+    analyzed_image: AnalyzedImage,
+    dest: str,
+    image_orientation: ImageOrientation,
+    include_remapped_image: bool,
+    display: bool,
+):
+    if image_orientation == ImageOrientation.AUTO:
+        image_orientation = analyzed_image.get_orientation()
+        visualization_orientation = image_orientation.rotate()
 
-    border_half = int(conf.DEFAULT_CHIP_BORDER / 2)
-    border_quarter = int(conf.DEFAULT_CHIP_BORDER / 4)
-    stacked_chips = get_2d_stack(image_representation.get_color_chips(), conf.DEFAULT_CHIP_GAP, orientation.rotate())
+    stacked_chips = get_2d_stack(
+        get_color_chips(analyzed_image.get_dominant_colors()),
+        conf.DEFAULT_CHIP_GAP,
+        image_orientation,
+    )
 
+    vis_components = [analyzed_image.pil_image, stacked_chips]
+    if include_remapped_image:
+        vis_components.append(analyzed_image.get_remapped_image())
+    outer_border = int(conf.DEFAULT_CHIP_BORDER / 2)
+    inner_border = int(conf.DEFAULT_CHIP_BORDER / 4)
+    if visualization_orientation == ImageOrientation.HORIZONTAL:
+        visualization = concat_horizontal(vis_components, outer_border, inner_border)
+    elif visualization_orientation == ImageOrientation.VERTICAL:
+        visualization = concat_vertical(vis_components, outer_border, inner_border)
+    else:
+        raise ValueError(f"Unrecognized orientation: {image_orientation}")
+
+    if display:
+        visualization.show()
+    save(visualization, dest)
+
+
+def get_2d_stack(images, gap, orientation: ImageOrientation):
+    with_borders = [images[0]]
     if orientation == ImageOrientation.HORIZONTAL:
-        original_image, chips, remapped_image = enforce_matching_height(
-            *[image_representation.get_image_rgb(), stacked_chips, image_representation.get_remapped_image()]
-        )
-        target_height = original_image.shape[0] + conf.DEFAULT_CHIP_BORDER
-        original_image = pad_to_height(original_image, target_height, left=border_half, right=border_quarter)
-        chips = pad_to_height(chips, target_height, left=border_quarter, right=border_quarter)
-        remapped_image = pad_to_height(remapped_image, target_height, left=border_quarter, right=border_half)
-        chips_viz = cv2.hconcat([original_image, chips, remapped_image])
+        top = bottom = right = 0
+        left = gap
+        concat = h_concat
     elif orientation == ImageOrientation.VERTICAL:
-        original_image, chips, remapped_image = enforce_matching_width(
-            *[image_representation.get_image_rgb(), stacked_chips, image_representation.get_remapped_image()]
-        )
-        target_width = original_image.shape[1] + conf.DEFAULT_CHIP_BORDER
-        original_image = pad_to_width(original_image, target_width, top=border_half, bottom=border_quarter)
-        chips = pad_to_width(chips, target_width, top=border_quarter, bottom=border_quarter)
-        remapped_image = pad_to_width(remapped_image, target_width, top=border_quarter, bottom=border_half)
-        chips_viz = cv2.vconcat([original_image, chips, remapped_image])
+        bottom = left = right = 0
+        top = gap
+        concat = v_concat
     else:
         raise ValueError(f"Unrecognized orientation: {orientation}")
 
-    if display:
-        display_until_key(chips_viz)
-    save(chips_viz, dest)
+    with_borders.extend(add_borders(images[1:], left, top, right, bottom))
+    return concat(with_borders)
+
+
+def get_color_chips(colors, size=conf.DEFAULT_CHIP_SIZE):
+    chips = []
+    for color in colors:
+        chips.append(Image.new("RGB", (size, size), color=tuple(color)))  # (chip))
+
+    return chips
+
+
+def concat_horizontal(visualization_components, outer_border, inner_border):
+    visualization_components = enforce_matching_height(visualization_components)  # all components have same height
+    visualization_components = pad_horizontal(visualization_components, outer_border, inner_border)
+    return h_concat(visualization_components)
+
+
+def enforce_matching_height(imgs):
+    max_height = max([img.height for img in imgs])
+    padded = []
+
+    for img in imgs:
+        diff = max_height - img.height
+        top = bottom = int(diff / 2)
+        if not diff % 2 == 0:
+            bottom += 1
+        img_with_border = add_borders([img], 0, top, 0, bottom)[0]
+        padded.append(img_with_border)
+
+    return padded
+
+
+def pad_horizontal(imgs, outer_border, inner_border):
+    padded = []
+    if len(imgs) == 1:
+        padded.append(
+            add_borders(imgs[0], left=outer_border, top=outer_border, right=outer_border, bottom=outer_border)
+        )
+    elif len(imgs) == 2:
+        padded.append(add_borders(imgs[0], outer_border, outer_border, inner_border, outer_border))
+        padded.append(add_borders(imgs[1], 0, outer_border, outer_border, outer_border))
+    elif len(imgs) > 2:
+        padded.append(add_borders(imgs[0], outer_border, outer_border, inner_border, outer_border))
+        for img in imgs[1:-1]:
+            padded.append(add_borders(img, 0, outer_border, inner_border, outer_border))
+        padded.append(add_borders(imgs[-1], 0, outer_border, outer_border, outer_border))
+    else:
+        raise ValueError(f"Unexpected number of images to pad: {len(imgs)}")
+
+    return padded
+
+
+def h_concat(imgs):
+    width = sum([im.width for im in imgs])
+    height = imgs[0].height
+    dst = Image.new("RGB", (width, height))
+    h_pos = 0
+    for im in imgs:
+        dst.paste(im, (h_pos, 0))
+        h_pos += im.width
+    return dst
+
+
+def concat_vertical(visualization_components, outer_border, inner_border):
+    visualization_components = enforce_matching_width(visualization_components)  # all components have same height
+    visualization_components = pad_vertical(visualization_components, outer_border, inner_border)
+    return v_concat(visualization_components)
+
+
+def enforce_matching_width(imgs):
+    max_width = max([img.width for img in imgs])
+    padded = []
+
+    for img in imgs:
+        diff = max_width - img.width
+        left = right = int(diff / 2)
+        if not diff % 2 == 0:
+            left += 1
+        img_with_border = add_borders([img], left, 0, right, 0)[0]
+        padded.append(img_with_border)
+
+    return padded
+
+
+def pad_vertical(imgs, outer_border, inner_border):
+    padded = []
+    if len(imgs) == 1:
+        padded.append(
+            add_borders(imgs[0], left=outer_border, top=outer_border, right=outer_border, bottom=outer_border)
+        )
+    elif len(imgs) == 2:
+        padded.append(add_borders(imgs[0], outer_border, outer_border, outer_border, inner_border))
+        padded.append(add_borders(imgs[1], outer_border, 0, outer_border, outer_border))
+    elif len(imgs) > 2:
+        padded.append(add_borders(imgs[0], outer_border, outer_border, outer_border, inner_border))
+        for img in imgs[1:-1]:
+            padded.append(add_borders(img, outer_border, 0, outer_border, inner_border))
+        padded.append(add_borders(imgs[-1], outer_border, 0, outer_border, outer_border))
+    else:
+        raise ValueError(f"Unexpected number of images to pad: {len(imgs)}")
+
+    return padded
+
+
+def v_concat(imgs):
+    width = imgs[0].width
+    height = sum([im.height for im in imgs])
+    dst = Image.new("RGB", (width, height))
+    v_pos = 0
+    for im in imgs:
+        dst.paste(im, (0, v_pos))
+        v_pos += im.height
+    return dst
+
+
+def add_borders(images, left, top, right, bottom):
+    """
+
+    border components: left, top, right, bottom
+
+    Args:
+        images (_type_): _description_
+        borders (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if not isinstance(images, List):
+        just_one = True
+        images = [images]
+    else:
+        just_one = False
+
+    with_borders = []
+    for im in images:
+        img_with_border = ImageOps.expand(im, border=(left, top, right, bottom), fill="white")
+        with_borders.append(img_with_border)
+
+    if just_one:
+        with_borders = with_borders[0]
+    return with_borders
 
 
 def save_spectrum_visualization(image_reps, dest, display=False):
     vertical_bars = [get_histogram_as_bar(rep) for rep in image_reps]
-    spectrum = cv2.hconcat(vertical_bars)
+    spectrum = h_concat(vertical_bars)
 
     if display:
-        display_until_key(spectrum)
+        spectrum.show()
     save(spectrum, dest)
 
 
 def get_histogram_as_bar(
-    img_representation: Image,
+    img_representation: AnalyzedImage,
     dominant_color_only: bool = True,
     height=conf.DEFAULT_BAR_HEIGHT,
     width=conf.DEFAULT_BAR_WIDTH,
@@ -103,107 +263,10 @@ def get_histogram_as_bar(
         print(f"{img_representation.image_path.stem} - {img_representation.get_dominant_color(hsv=True)}")
     else:
         color_hist = img_representation.cluster_histogram
-    bar = np.zeros((height, width, 3), np.uint8)
-    start_y = 0
 
+    bar_components = []
     for color_rgb, proportion in color_hist:  # build top-down
-        # color_rgb_as_list = color_rgb.tolist() # color.rgb_rep.astype("uint8").tolist()
+        converted = tuple([int(color) for color in color_rgb])
+        bar_components.append(Image.new("RGB", (width, proportion * height), color=converted))
 
-        # plot the relative percentage of each cluster
-        end_y = start_y + (proportion * height)
-        cv2.rectangle(
-            bar,  # image to be filled
-            (0, int(start_y)),  # start
-            (width, int(end_y)),  # end
-            color_rgb.tolist(),  # color in RGB (or BGR?)
-            -1,
-        )
-        start_y = end_y
-
-    # return the bar chart
-    return bar
-
-
-def display_until_key(img):
-    cv2.imshow("img", img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
-def get_2d_stack(images, gap, orientation: ImageOrientation):
-    with_borders = [images[0]]
-    if orientation == ImageOrientation.HORIZONTAL:
-        top = bottom = right = 0
-        left = gap
-        concat = cv2.hconcat
-    elif orientation == ImageOrientation.VERTICAL:
-        bottom = left = right = 0
-        top = gap
-        concat = cv2.vconcat
-    else:
-        raise ValueError(f"Unrecognized orientation: {orientation}")
-
-    for i in range(1, len(images)):
-        with_borders.append(
-            cv2.copyMakeBorder(images[i], top, bottom, left, right, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-        )
-
-    return concat(with_borders)
-
-
-def enforce_matching_height(*imgs):
-    max_height = max([img.shape[0] for img in imgs])
-    padded = []
-
-    for img in imgs:
-        diff = max_height - img.shape[0]
-        top = bottom = int(diff / 2)
-        if not diff % 2 == 0:
-            bottom += 1
-        img_with_border = cv2.copyMakeBorder(img, top, bottom, 0, 0, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-        padded.append(img_with_border)
-
-    return padded
-
-
-def enforce_matching_width(*imgs):
-    max_width = max([img.shape[1] for img in imgs])
-    padded = []
-
-    for img in imgs:
-        diff = max_width - img.shape[1]
-        left = right = int(diff / 2)
-        if not diff % 2 == 0:
-            left += 1
-        img_with_border = cv2.copyMakeBorder(img, 0, 0, left, right, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-        padded.append(img_with_border)
-
-    return padded
-
-
-def pad_to_height(img, target_height, left, right):
-    height = img.shape[0]
-    top_and_bottom = int((target_height - height) / 2)
-    top = bottom = top_and_bottom
-    actual_height = height + (2 * top_and_bottom)
-    if not actual_height == target_height:
-        bottom += target_height - actual_height
-
-    with_border = cv2.copyMakeBorder(
-        img, int(top), int(bottom), left, right, cv2.BORDER_CONSTANT, value=[255, 255, 255]
-    )
-    return with_border
-
-
-def pad_to_width(img, target_width, top, bottom):
-    width = img.shape[1]
-    left_and_right = int((target_width - width) / 2)
-    left = right = left_and_right
-    actual_width = width + (2 * left_and_right)
-    if not actual_width == target_width:
-        bottom += target_width - actual_width
-
-    with_border = cv2.copyMakeBorder(
-        img, top, bottom, int(left), int(right), cv2.BORDER_CONSTANT, value=[255, 255, 255]
-    )
-    return with_border
+    return v_concat(bar_components)

@@ -2,6 +2,7 @@
 *.jpg
 *.png
 __pycache__/
+.deprecated/
 .pytest_cache/
+scripts/
 venv/
-tests/
