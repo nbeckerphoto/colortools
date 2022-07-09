@@ -27,7 +27,7 @@ optional arguments:
 ```sh
 $ python cli.py analyze --help
 usage: cli.py analyze [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
-                      [--save_dominant_color_visualization] [--include_remapped_image] [--display]
+                      [--save_dominant_color_visualization] [--include_remapped_image] [--exclude_black_and_white] [--display]
                       input
 
 positional arguments:
@@ -48,6 +48,8 @@ optional arguments:
                         Save dominant color visualization for each image.
   --include_remapped_image
                         Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.
+  --exclude_black_and_white
+                        Exclude black and white images from generated graphics.
   --display             Display generated graphics.
 ```
 
@@ -56,9 +58,10 @@ optional arguments:
 `sort`: Given a directory, perform color analysis on all images therein, sort them by their dominant hue, then save copies prefixed with sorted order. 
 
 ```sh
-$ python cli.py sort --help
+$ python cli.py sort --help   
 usage: cli.py sort [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
-                   [--save_dominant_color_visualization] [--include_remapped_image] [--display] [--spectrum] [--include_all_colors] [--anchor ANCHOR] [--reverse]
+                   [--save_dominant_color_visualization] [--include_remapped_image] [--exclude_black_and_white] [--display] [--anchor ANCHOR] [--reverse] [--spectrum]
+                   [--include_all_colors] [--collage]
                    input
 
 positional arguments:
@@ -79,11 +82,14 @@ optional arguments:
                         Save dominant color visualization for each image.
   --include_remapped_image
                         Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.
+  --exclude_black_and_white
+                        Exclude black and white images from generated graphics.
   --display             Display generated graphics.
-  --spectrum            Save spectrum image for the current collection of images.
-  --include_all_colors  Include all detected dominant colors in the spectrum graphic.
   --anchor ANCHOR       Name of the first file in the sorted output sequence.
   --reverse             Reverse the color sort order.
+  --spectrum            Save spectrum image for the current collection of images.
+  --include_all_colors  Include all detected dominant colors in the spectrum graphic.
+  --collage             Save a collage of the sorted images.
 ```
 
 ### Tests and Coverage
