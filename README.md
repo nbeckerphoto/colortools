@@ -101,6 +101,7 @@ $ coverage run -m pytest tests && coverage html && open htmlcov/index.html
 
 ### v1.0.0 TODO
 - Installable via `pip`
+- Clean up CLI options.
 - ~~\>=90% test coverage~~
 - ~~Image collage generation~~
 - ~~Ensure that spectrum generation works with \>1 color per bar.~~
