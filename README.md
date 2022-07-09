@@ -27,7 +27,7 @@ optional arguments:
 ```sh
 $ python cli.py analyze --help
 usage: cli.py analyze [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
-                      [--generate_chips_graphic] [--include_remapped_image] [--display]
+                      [--save_dominant_color_visualization] [--include_remapped_image] [--display]
                       input
 
 positional arguments:
@@ -44,8 +44,8 @@ optional arguments:
                         The stacking orientation of any output graphics.
   --output_dir OUTPUT_DIR
                         Output directory for sorted .jpg files.
-  --generate_chips_graphic
-                        Save chips visualization for each image.
+  --save_dominant_color_visualization
+                        Save dominant color visualization for each image.
   --include_remapped_image
                         Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.
   --display             Display generated graphics.
@@ -56,9 +56,9 @@ optional arguments:
 `sort`: Given a directory, perform color analysis on all images therein, sort them by their dominant hue, then save copies prefixed with sorted order. 
 
 ```sh
-$ python cli.py sort --help   
+$ python cli.py sort --help
 usage: cli.py sort [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
-                   [--generate_chips_graphic] [--include_remapped_image] [--display] [--spectrum] [--anchor ANCHOR] [--reverse]
+                   [--save_dominant_color_visualization] [--include_remapped_image] [--display] [--spectrum] [--include_all_colors] [--anchor ANCHOR] [--reverse]
                    input
 
 positional arguments:
@@ -75,12 +75,13 @@ optional arguments:
                         The stacking orientation of any output graphics.
   --output_dir OUTPUT_DIR
                         Output directory for sorted .jpg files.
-  --generate_chips_graphic
-                        Save chips visualization for each image.
+  --save_dominant_color_visualization
+                        Save dominant color visualization for each image.
   --include_remapped_image
                         Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.
   --display             Display generated graphics.
   --spectrum            Save spectrum image for the current collection of images.
+  --include_all_colors  Include all detected dominant colors in the spectrum graphic.
   --anchor ANCHOR       Name of the first file in the sorted output sequence.
   --reverse             Reverse the color sort order.
 ```
@@ -98,5 +99,5 @@ $ coverage run -m pytest tests && coverage html && open htmlcov/index.html
 - Image collage generation
 - ~~Ensure that spectrum generation works with \>1 color per bar.~~
 - ~~Ensure exact decimals are stored for dominant colors, and only cast to ints when needed~~
-- Git hooks for black and flake8
+- ~~Git hooks for black and flake8~~
 - Look into sampling for dominant color calculation.
