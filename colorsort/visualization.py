@@ -3,8 +3,7 @@ from pathlib import Path
 from typing import List, Union
 
 import numpy as np
-from PIL import ImageOps
-from PIL.Image import Image
+from PIL import Image, ImageOps
 
 import colorsort.config as config
 from colorsort.analyzed_image import AnalyzedImage
@@ -14,7 +13,7 @@ from colorsort.util import ImageOrientation
 # TODO: remove dependency on config file; all parameters should be passed in
 
 
-def save(image: Union[AnalyzedImage, Image, np.array], dest_path: Union[Path, str]):
+def save(image: Union[AnalyzedImage, Image.Image, np.array], dest_path: Union[Path, str]):
     """Save the provided image to disk.
 
     If the image is an image representation, create a hard link between the image's original file and
@@ -32,7 +31,7 @@ def save(image: Union[AnalyzedImage, Image, np.array], dest_path: Union[Path, st
 
     if isinstance(image, AnalyzedImage):
         os.link(image.image_path, dest_path)
-    elif isinstance(image, Image):
+    elif isinstance(image, Image.Image):
         image.save(dest_path)
     else:
         image = Image.fromarray(image)
@@ -89,11 +88,11 @@ def save_dominant_color_visualization(
     save(visualization, dest_path)
 
 
-def get_2d_stack(images: List[Image], gap: int, orientation: ImageOrientation) -> Image:
+def get_2d_stack(images: List[Image.Image], gap: int, orientation: ImageOrientation) -> Image.Image:
     """Stack a sequence of images into a single image.
 
     Args:
-        images (List[Image]): A list of images to stack.
+        images (List[Image.Image]): A list of images to stack.
         gap (int): The gap between images in the generated stack of images.
         orientation (ImageOrientation): The orientation of the generated stack of images.
 
@@ -119,17 +118,17 @@ def get_2d_stack(images: List[Image], gap: int, orientation: ImageOrientation) -
     return concat(with_borders)
 
 
-def concat_horizontal(images: List[Image]) -> Image:
+def concat_horizontal(images: List[Image.Image]) -> Image.Image:
     """Concatenate a sequence of images horizontally into a single image.
 
     Args:
-        images (List[Image]): The sequence of images to concatenate.
+        images (List[Image.Image]): The sequence of images to concatenate.
 
     Returns:
         Image: The image resulting from the horizontal concatenation of the provided images.
     """
     width = sum([img.width for img in images])
-    height = images[0].height
+    height = max([img.height for img in images])
     dest_image = Image.new("RGB", (width, height))
     h_pos = 0
     for img in images:
@@ -138,16 +137,16 @@ def concat_horizontal(images: List[Image]) -> Image:
     return dest_image
 
 
-def concat_vertical(images: List[Image]) -> Image:
+def concat_vertical(images: List[Image.Image]) -> Image.Image:
     """Concatenate a sequence of images vertically into a single image.
 
     Args:
-        images (List[Image]): The sequence of images to concatenate.
+        images (List[Image.Image]): The sequence of images to concatenate.
 
     Returns:
         Image: The image resulting from the vertical concatenation of the provided images.
     """
-    width = images[0].width
+    width = max([img.width for img in images])
     height = sum([img.height for img in images])
     dest_image = Image.new("RGB", (width, height))
     v_pos = 0
@@ -157,7 +156,7 @@ def concat_vertical(images: List[Image]) -> Image:
     return dest_image
 
 
-def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[Image]:
+def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[Image.Image]:
     """Get a set of chips (small, single-color images) representing each dominant color.
 
     Args:
@@ -165,7 +164,7 @@ def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[I
         size (_type_, optional): The size of the generated chips. Defaults to config.DEFAULT_CHIP_SIZE.
 
     Returns:
-        List[Image]: A list of chips corresponding to the provided colors.
+        List[Image.Image]: A list of chips corresponding to the provided colors.
     """
     chips = []
     for color in colors:
@@ -174,7 +173,9 @@ def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[I
     return chips
 
 
-def pad_concat_horizontal(visualization_components: List[Image], outer_border: int, inner_border: int) -> Image:
+def pad_concat_horizontal(
+    visualization_components: List[Image.Image], outer_border: int, inner_border: int
+) -> Image.Image:
     """Pad and concatenate asequence of images horizontally into a single image.
 
     Applies padding to ensure that
@@ -182,7 +183,7 @@ def pad_concat_horizontal(visualization_components: List[Image], outer_border: i
     - `outer_border` and `inner_border` are applied correctly
 
     Args:
-        visualization_components (List[Image]): Images to pad and concatenate horizontally.
+        visualization_components (List[Image.Image]): Images to pad and concatenate horizontally.
         outer_border (int): The width of the outer border of the final concatenated image (px).
         inner_border (int): The width of the inner border between concatenated components (px).
 
@@ -194,14 +195,14 @@ def pad_concat_horizontal(visualization_components: List[Image], outer_border: i
     return concat_horizontal(visualization_components)
 
 
-def enforce_matching_height(images: List[Image]) -> List[Image]:
+def enforce_matching_height(images: List[Image.Image]) -> List[Image.Image]:
     """Returns the provided sequence of images with padding to ensure equal height.
 
     Args:
-        images (List[Image]): A sequence of images.
+        images (List[Image.Image]): A sequence of images.
 
     Returns:
-        List[Image]: A sequence of images with the same height.
+        List[Image.Image]: A sequence of images with the same height.
     """
     max_height = max([img.height for img in images])
     padded = []
@@ -216,14 +217,14 @@ def enforce_matching_height(images: List[Image]) -> List[Image]:
     return padded
 
 
-def pad_horizontal(images: List[Image], outer_border: int, inner_border: int) -> List[Image]:
+def pad_horizontal(images: List[Image.Image], outer_border: int, inner_border: int) -> List[Image.Image]:
     """Applies padding to images before horizontal concatenation.
 
     Ensures the provided sequence of images will have the provided `outer_border` and `inner_border` once
     horizontally concatenated.
 
     Args:
-        images (List[Image]): The sequence of images to apply padding to.
+        images (List[Image.Image]): The sequence of images to apply padding to.
         outer_border (int): The desired width of the outer border of the final concatenated image (px).
         inner_border (int): The desired width of the inner border between concatenated components (px).
 
@@ -231,7 +232,7 @@ def pad_horizontal(images: List[Image], outer_border: int, inner_border: int) ->
         ValueError: If `images` is empty.
 
     Returns:
-        List[Image]: A sequence of properly padded images.
+        List[Image.Image]: A sequence of properly padded images.
     """
     padded = []
     if len(images) == 1:
@@ -252,7 +253,9 @@ def pad_horizontal(images: List[Image], outer_border: int, inner_border: int) ->
     return padded
 
 
-def pad_concat_vertical(visualization_components: List[Image], outer_border: int, inner_border: int) -> Image:
+def pad_concat_vertical(
+    visualization_components: List[Image.Image], outer_border: int, inner_border: int
+) -> Image.Image:
     """Pad and concatenate asequence of images vertically into a single image.
 
     Applies padding to ensure that
@@ -260,7 +263,7 @@ def pad_concat_vertical(visualization_components: List[Image], outer_border: int
     - `outer_border` and `inner_border` are applied correctly
 
     Args:
-        visualization_components (List[Image]): Images to pad and concatenate vertically.
+        visualization_components (List[Image.Image]): Images to pad and concatenate vertically.
         outer_border (int): The width of the outer border of the final concatenated image (px).
         inner_border (int): The width of the inner border between concatenated components (px).
 
@@ -273,14 +276,14 @@ def pad_concat_vertical(visualization_components: List[Image], outer_border: int
     return concat_vertical(visualization_components)
 
 
-def enforce_matching_width(images: List[Image]) -> List[Image]:
+def enforce_matching_width(images: List[Image.Image]) -> List[Image.Image]:
     """Returns the provided sequence of images with padding to ensure equal width.
 
     Args:
-        images (List[Image]): A sequence of images.
+        images (List[Image.Image]): A sequence of images.
 
     Returns:
-        List[Image]: A sequence of images with the same width.
+        List[Image.Image]: A sequence of images with the same width.
     """
     max_width = max([img.width for img in images])
     padded = []
@@ -296,14 +299,14 @@ def enforce_matching_width(images: List[Image]) -> List[Image]:
     return padded
 
 
-def pad_vertical(images: List[Image], outer_border: int, inner_border: int) -> List[Image]:
+def pad_vertical(images: List[Image.Image], outer_border: int, inner_border: int) -> List[Image.Image]:
     """Applies padding to images before vertical concatenation.
 
     Ensures the provided sequence of images will have the provided `outer_border` and `inner_border` once
     vertically concatenated.
 
     Args:
-        images (List[Image]): The sequence of images to apply padding to.
+        images (List[Image.Image]): The sequence of images to apply padding to.
         outer_border (int): The desired width of the outer border of the final concatenated image (px).
         inner_border (int): The desired width of the inner border between concatenated components (px).
 
@@ -311,7 +314,7 @@ def pad_vertical(images: List[Image], outer_border: int, inner_border: int) -> L
         ValueError: If `images` is empty.
 
     Returns:
-        List[Image]: A sequence of properly padded images.
+        List[Image.Image]: A sequence of properly padded images.
     """
     padded = []
     if len(images) == 1:
@@ -333,19 +336,19 @@ def pad_vertical(images: List[Image], outer_border: int, inner_border: int) -> L
 
 
 def add_borders(
-    images: Union[Image, List[Image]], left: int, top: int, right: int, bottom: int
-) -> Union[Image, List[Image]]:
+    images: Union[Image.Image, List[Image.Image]], left: int, top: int, right: int, bottom: int
+) -> Union[Image.Image, List[Image.Image]]:
     """Apply borders to an image or sequence of images.
 
     Args:
-        images (Union[Image, List[Image]]): The image or sequence of images to apply borders to.
+        images (Union[Image.Image, List[Image.Image]]): The image or sequence of images to apply borders to.
         left (int): The desired left border width.
         top (int): The desired top border width.
         right (int): The desired right border width.
         bottom (int): The desired bottom border width.
 
     Returns:
-        Union[Image, List[Image]]: The image or images with borders applied.
+        Union[Image.Image, List[Image.Image]]: The image or images with borders applied.
     """
     if not isinstance(images, List):
         just_one = True
@@ -387,7 +390,7 @@ def get_histogram_as_bar(
     dominant_color_only: bool = True,
     height: int = config.DEFAULT_BAR_HEIGHT,
     width: int = config.DEFAULT_BAR_WIDTH,
-) -> Image:
+) -> Image.Image:
     """Get a representation of an image's dominant color histogram as a stacked vertical bar.
 
     TODO: remove default values; set from CLI
