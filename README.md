@@ -89,12 +89,12 @@ optional arguments:
 ... can be run with 
 
 ```
-$ coverage run -m pytest tests && coverage html
-$ open htmlcov/index.html
+$ coverage run -m pytest tests && coverage html && open htmlcov/index.html 
 ```
 
 ### v1.0.0 TODO
 - Installable via `pip`
-- \>=80% test coverage
+- \>=90% test coverage
 - Image collage generation
 - Ensure that spectrum generation works with \>1 color per bar. 
+- Ensure exact decimals are stored for dominant colors, and only cast to ints when needed
