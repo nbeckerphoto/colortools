@@ -49,15 +49,15 @@ class AnalyzedImage:
 
         # set image, dimensions, and orientation
         pil_image = Image.open(image_path)
-        width, height = pil_image.size
-        if height > width:
+        original_width, original_height = pil_image.size
+        if original_height > original_width:
             self.orientation = util.ImageOrientation.VERTICAL
-            resized_height = resize_long_axis
-            resized_width = int((width / height) * resized_height)
+            resized_height = resize_long_axis if resize_long_axis is not None else original_height
+            resized_width = int((original_width / original_height) * resized_height)
         else:
             self.orientation = util.ImageOrientation.HORIZONTAL
-            resized_width = resize_long_axis
-            resized_height = int((height / width) * resized_width)
+            resized_width = resize_long_axis if resize_long_axis is not None else original_width
+            resized_height = int((original_height / original_width) * resized_width)
 
         self.pil_image = pil_image.resize((resized_width, resized_height))
         self.width, self.height = self.pil_image.size
@@ -100,8 +100,8 @@ class AnalyzedImage:
             current_hue_list = hue_dist[i]
             hue = current_hue_list[0]
             if len(current_hue_list[1]) > 0:
-                avg_sat = int(np.median([hsv[1] for hsv in current_hue_list[1]]))
-                avg_val = int(np.median([hsv[2] for hsv in current_hue_list[1]]))
+                avg_sat = util.round_to_int(np.median([hsv[1] for hsv in current_hue_list[1]]))
+                avg_val = util.round_to_int(np.median([hsv[2] for hsv in current_hue_list[1]]))
             else:
                 logging.warning(
                     f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
@@ -109,7 +109,7 @@ class AnalyzedImage:
                 avg_sat, avg_val = 0, 0
             dominant_colors_hsv.append([hue, avg_sat, avg_val])
 
-        dominant_colors_hsv = util.normalize_hsv(dominant_colors_hsv)
+        dominant_colors_hsv = util.normalize_8bit_hsv(dominant_colors_hsv)
         dominant_colors_rgb = util.hsv_to_rgb(dominant_colors_hsv)
         return dominant_colors_rgb, dominant_colors_hsv
 
@@ -124,9 +124,9 @@ class AnalyzedImage:
         """
         self.model, self.predicted = fit_and_predict(self.get_as_array(), n_colors)
         self.cluster_histogram = build_histogram_from_clusters(self.model)
-        dominant_colors_rgb = [np.uint8(rgb).tolist() for rgb, _ in self.cluster_histogram]
+        dominant_colors_rgb = [rgb.tolist() for rgb, _ in self.cluster_histogram]
         dominant_colors_hsv = util.rgb_to_hsv(dominant_colors_rgb)
-
+        dominant_colors_rgb = [np.around(rgb) for rgb in dominant_colors_rgb]
         return dominant_colors_rgb, dominant_colors_hsv
 
     def get_as_array(self, hsv=False) -> np.array:

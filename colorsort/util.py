@@ -25,7 +25,7 @@ class DominantColorAlgorithm(Enum):
 
 
 def round_to_int(val: float) -> int:
-    """Round a float to the nearest integer.
+    """Round a single float value to the nearest integer.
 
     Args:
         val (float): The float to round.
@@ -50,7 +50,6 @@ def rgb_to_hsv(
     Returns:
         Union[List[int], List[List[int]]]: The converted HSV array, or a list of them.
     """
-    print(rgb_list)
     if not isinstance(rgb_list[0], List):
         just_one = True
         rgb_list = [rgb_list]
@@ -61,7 +60,7 @@ def rgb_to_hsv(
     for rgb in rgb_list:
         (h, s, v) = colorsys.rgb_to_hsv(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
         converted.append(
-            [round_to_int(h * hsv_normalize_h), round_to_int(s * hsv_normalize_sv), round_to_int(v * hsv_normalize_sv)]
+            [round_to_int(h * hsv_normalize_h) % hsv_normalize_h, round_to_int(s * hsv_normalize_sv), round_to_int(v * hsv_normalize_sv)]
         )
 
     if just_one:
@@ -99,7 +98,7 @@ def hsv_to_rgb(
     return converted
 
 
-def normalize_8_bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[List[int], List[List[int]]]:
+def normalize_8bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[List[int], List[List[int]]]:
     """Normalize an HSV array specified with 8-bit integers to the standard HSV space.
 
     Standard HSV space: hue [0..360], sat [0..100], val [0..100].
@@ -118,7 +117,7 @@ def normalize_8_bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[Li
 
     normalized = []
     for hsv in hsv_list:
-        h = round_to_int((hsv[0] / 255) * 360)
+        h = round_to_int((hsv[0] / 255) * 360) % 360
         s = round_to_int((hsv[1] / 255) * 100)
         v = round_to_int((hsv[2] / 255) * 100)
         normalized.append([h, s, v])
