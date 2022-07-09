@@ -1,3 +1,4 @@
+import math
 import os
 from pathlib import Path
 from typing import List, Union
@@ -7,7 +8,7 @@ from PIL import Image, ImageOps
 
 import colorsort.config as config
 from colorsort.analyzed_image import AnalyzedImage
-from colorsort.util import ImageOrientation, round_to_int
+from colorsort.util import ImageOrientation, round_array, round_to_int
 
 # TODO: write tests for these functions
 # TODO: remove dependency on config file; all parameters should be passed in
@@ -168,7 +169,7 @@ def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[I
     """
     chips = []
     for color in colors:
-        chips.append(Image.new("RGB", (size, size), color=tuple(np.uint8(np.around(color, 0)))))
+        chips.append(Image.new("RGB", (size, size), color=tuple(round_array(color))))
 
     return chips
 
@@ -212,7 +213,7 @@ def enforce_matching_height(images: List[Image.Image]) -> List[Image.Image]:
         top = bottom = int(height_diff / 2)
         if not height_diff % 2 == 0:
             bottom += 1
-        padded.append(add_borders(img, 0, top, 0, bottom)[0])
+        padded.append(add_borders(img, 0, top, 0, bottom))
 
     return padded
 
@@ -420,3 +421,32 @@ def get_histogram_as_bar(
         bar_components.append(Image.new("RGB", (width, round_to_int(proportion * height)), color=converted))
 
     return concat_vertical(bar_components)
+
+
+def save_image_collage(analyzed_images: List[AnalyzedImage], dest_path: str, display: bool):
+    """Generate a collage of the sorted images.
+
+    Tries to keep aspect ratio of generated graphic as square as possible.
+
+    Args:
+        analyzed_images (List[AnalyzedImage]): Sequence of analyzed images.
+        dest_path (str): The output folder to which to write the generated graphic.
+        display (bool): Whether to display the generated graphic.
+    """
+    width = int(math.sqrt(len(analyzed_images)))
+    if width**2 == len(analyzed_images):
+        height = width
+    else:
+        width += 1
+        height = len(analyzed_images) / width
+        if (width * height) < len(analyzed_images):
+            height += 1
+
+    pil_images = [analyzed_image.pil_image for analyzed_image in analyzed_images]
+    rows = [pil_images[i : i + width] for i in range(0, len(pil_images), width)]
+    spacing = config.DEFAULT_COLLAGE_SPACING
+    rows = [pad_concat_horizontal(images, spacing, spacing) for images in rows]
+    collage = pad_concat_vertical(rows, spacing, spacing)
+    if display:
+        collage.show()
+    save(collage, dest_path)

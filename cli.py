@@ -74,6 +74,11 @@ def parse_args() -> argparse.Namespace:
         help="Include remapped image in chips visualization. Ignored if not using KMEANS algorithm.",
     )
     subparser_parent.add_argument(
+        "--exclude_black_and_white",
+        action="store_true",
+        help="Exclude black and white images from generated graphics.",
+    )
+    subparser_parent.add_argument(
         "--display",
         action="store_true",
         help="Display generated graphics.",
@@ -86,6 +91,8 @@ def parse_args() -> argparse.Namespace:
     sort_subparser = subparsers.add_parser(
         SORT_PARSER, parents=[subparser_parent], help="Sort images by color (also performs analysis)."
     )
+    sort_subparser.add_argument("--anchor", type=str, help="Name of the first file in the sorted output sequence.")
+    sort_subparser.add_argument("--reverse", action="store_true", help="Reverse the color sort order.")
     sort_subparser.add_argument(
         "--spectrum",
         action="store_true",
@@ -96,8 +103,7 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Include all detected dominant colors in the spectrum graphic.",
     )
-    sort_subparser.add_argument("--anchor", type=str, help="Name of the first file in the sorted output sequence.")
-    sort_subparser.add_argument("--reverse", action="store_true", help="Reverse the color sort order.")
+    sort_subparser.add_argument("--collage", action="store_true", help="Save a collage of the sorted images.")
 
     return main_parser.parse_args()
 
@@ -122,7 +128,9 @@ def main():
 
     if args.command == SORT_PARSER:
         print("Sorting...")
-        all_image_reps, _, _ = AnalyzedImage.colorsort(all_image_reps, args.anchor)
+        all_image_reps, color, _ = AnalyzedImage.colorsort(all_image_reps, args.anchor)
+        if args.exclude_black_and_white:
+            all_image_reps = color
 
         print("Saving sorted images...")
         dest_dir = Path(f"{args.output_dir}/sorted/{timestamp}")
@@ -134,10 +142,15 @@ def main():
             print("Saving spectrum...")
             filename = f"{timestamp}_spectrum_n={args.n_colors}.jpg"
             spectrum_dest = Path(f"{args.output_dir}/spectrums/{filename}")
-            print(args.include_all_colors)
             visualization.save_spectrum_visualization(
                 all_image_reps, args.include_all_colors, spectrum_dest, args.display
             )
+
+        if args.collage:
+            print("Saving collage...")
+            filename = f"{timestamp}_collage_n={args.n_colors}.jpg"
+            spectrum_dest = Path(f"{args.output_dir}/collage/{filename}")
+            visualization.save_image_collage(all_image_reps, spectrum_dest, args.display)
 
     if args.save_dominant_color_visualization:
         print("Saving chips...")
