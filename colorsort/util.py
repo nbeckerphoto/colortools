@@ -2,6 +2,8 @@ import colorsys
 from enum import Enum
 from typing import List, Union
 
+import numpy as np
+
 
 class ImageOrientation(Enum):
     """Enum for image orientations."""
@@ -34,6 +36,19 @@ def round_to_int(val: float) -> int:
         int: The rounded integer.
     """
     return int(val + 0.5)
+
+
+def round_array(vals: Union[List, np.array]) -> Union[List[List[int]], List[int]]:
+    """Round an entire list/array (or list/array of lists/arrays) of values to integers.
+
+    Args:
+        vals (Union[List, np.array]): The list/array (or list/array of lists/arrays) to round.
+
+    Returns:
+        Union[List[List[int]], List[int]]: The rounded output list.
+    """
+    rounded = np.uint(np.around(vals, 0))
+    return [a.tolist() for a in rounded]
 
 
 def rgb_to_hsv(

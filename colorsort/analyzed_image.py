@@ -72,7 +72,7 @@ class AnalyzedImage:
         if self.dominant_color_algorithm == util.DominantColorAlgorithm.HUE_DIST:
             if self.n_colors > 1:
                 logging.warning(
-                    f"Using {self.dominant_color_algorithm.value} with n_colors={n_colors}; "
+                    f"Using {self.dominant_color_algorithm.value} with n_colors={self.n_colors}; "
                     "dominant colors may be very similar."
                 )
             self.dominant_colors_rgb, self.dominant_colors_hsv = self.get_dominant_colors_hue_dist(self.n_colors)
@@ -240,8 +240,8 @@ class AnalyzedImage:
             str: A pretty string representation of this analyzed image.
         """
         out = f"{self.image_path.name}: n={self.n_colors}, algorithm={self.dominant_color_algorithm.value} \n"
-        out += f"    rgb={self.dominant_colors_rgb}\n"
-        out += f"    hsv={self.dominant_colors_hsv}"
+        out += f"    rgb={util.round_array(self.dominant_colors_rgb)}\n"
+        out += f"    hsv={util.round_array(self.dominant_colors_hsv)}"
         return out
 
     def get_sort_metric(self) -> int:

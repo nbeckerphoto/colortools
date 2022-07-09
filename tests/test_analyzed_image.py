@@ -74,7 +74,7 @@ def test_analyzed_image_orientation(test_dimensions, resize_long_axis, target_or
     ],
 )
 def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
-    image_path = f"tests/test_images/red-blue.jpg"
+    image_path = "tests/test_images/red-blue.jpg"
     analyzed_image = AnalyzedImage(image_path, None, dominant_color_algorithm, None, auto_n_heuristic)
     dominant_colors_rgb = analyzed_image.get_dominant_colors()
     dominant_colors_hsv = analyzed_image.get_dominant_colors(hsv=True)
