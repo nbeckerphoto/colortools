@@ -91,6 +91,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Save spectrum image for the current collection of images.",
     )
+    sort_subparser.add_argument(
+        "--include_all_colors",
+        action="store_true",
+        help="Include all detected dominant colors in the spectrum graphic.",
+    )
     sort_subparser.add_argument("--anchor", type=str, help="Name of the first file in the sorted output sequence.")
     sort_subparser.add_argument("--reverse", action="store_true", help="Reverse the color sort order.")
 
@@ -129,7 +134,10 @@ def main():
             print("Saving spectrum...")
             filename = f"{timestamp}_spectrum_n={args.n_colors}.jpg"
             spectrum_dest = Path(f"{args.output_dir}/spectrums/{filename}")
-            visualization.save_spectrum_visualization(all_image_reps, spectrum_dest)
+            print(args.include_all_colors)
+            visualization.save_spectrum_visualization(
+                all_image_reps, args.include_all_colors, spectrum_dest, args.display
+            )
 
     if args.save_dominant_color_visualization:
         print("Saving chips...")
@@ -139,7 +147,7 @@ def main():
             visualization.save_dominant_color_visualization(
                 image_rep,
                 chips_dest,
-                image_orientation=args.orientation,
+                visualization_orientation=args.orientation,
                 include_remapped_image=args.include_remapped_image,
                 display=args.display,
             )

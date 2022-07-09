@@ -1,5 +1,8 @@
-import pytest
 import colorsort.util as util
+import numpy as np
+import pytest
+
+from conftest import ARRAY_TOLERANCE
 
 rgb_hsv_pairs = [
     ([0, 0, 0], [0, 0, 0]),
@@ -23,22 +26,26 @@ rgb_hsv_pairs = [
 
 @pytest.mark.parametrize("test_rgb,test_hsv", rgb_hsv_pairs)
 def test_rgb_to_hsv(test_rgb, test_hsv):
-    assert util.rgb_to_hsv(test_rgb) == test_hsv
+    np.testing.assert_allclose(util.rgb_to_hsv(test_rgb), test_hsv, atol=ARRAY_TOLERANCE)
 
 
 @pytest.mark.parametrize("test_rgb,test_hsv", rgb_hsv_pairs)
 def test_hsv_to_rgb(test_rgb, test_hsv):
-    assert util.hsv_to_rgb(test_hsv) == test_rgb
+    np.testing.assert_allclose(util.hsv_to_rgb(test_hsv), test_rgb, atol=ARRAY_TOLERANCE)
 
-@pytest.mark.parametrize("test_input,target_output", [
-    (0, 0), 
-    (0.0001, 0),
-    (0.5, 1), 
-    (0.9999, 1), 
-    (1.0001, 1), 
-    (1.4999, 1),
-    (1.5, 2),
-    (1.50001, 2),
-])
-def test_round_to_int(test_input, target_output): 
+
+@pytest.mark.parametrize(
+    "test_input,target_output",
+    [
+        (0, 0),
+        (0.0001, 0),
+        (0.5, 1),
+        (0.9999, 1),
+        (1.0001, 1),
+        (1.4999, 1),
+        (1.5, 2),
+        (1.50001, 2),
+    ],
+)
+def test_round_to_int(test_input, target_output):
     assert util.round_to_int(test_input) == target_output

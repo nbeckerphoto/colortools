@@ -2,9 +2,10 @@ import numpy as np
 import pytest
 from colorsort.analyzed_image import AnalyzedImage
 from colorsort.heuristics import NHeuristic
-from colorsort.util import DominantColorAlgorithm, ImageOrientation, rgb_to_hsv, hsv_to_rgb
+from colorsort.util import DominantColorAlgorithm, ImageOrientation, hsv_to_rgb, rgb_to_hsv
 
-from conftest import get_image_path
+from conftest import ARRAY_TOLERANCE, get_image_path
+
 
 @pytest.mark.parametrize(
     "test_dimensions, resize_long_axis, target_dimensions",
@@ -81,4 +82,5 @@ def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
     for i in range(len(dominant_colors_rgb)):
         rgb = dominant_colors_rgb[i]
         hsv = dominant_colors_hsv[i]
-        np.testing.assert_allclose(rgb_to_hsv(rgb), hsv, atol=1)  # TODO: round dominant colors only when needed
+        np.testing.assert_allclose(rgb_to_hsv(rgb), hsv, atol=ARRAY_TOLERANCE)
+        np.testing.assert_allclose(hsv_to_rgb(hsv), rgb, atol=ARRAY_TOLERANCE)

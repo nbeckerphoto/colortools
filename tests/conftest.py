@@ -1,6 +1,7 @@
 import numpy as np
-
 from colorsort.heuristics import MAX_N, PIL_NUM_HUES
+
+ARRAY_TOLERANCE = 1
 
 
 def get_image_path(dimensions, color_name):

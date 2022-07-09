@@ -59,9 +59,7 @@ def rgb_to_hsv(
     converted = []
     for rgb in rgb_list:
         (h, s, v) = colorsys.rgb_to_hsv(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
-        converted.append(
-            [round_to_int(h * hsv_normalize_h) % hsv_normalize_h, round_to_int(s * hsv_normalize_sv), round_to_int(v * hsv_normalize_sv)]
-        )
+        converted.append([(h * hsv_normalize_h) % hsv_normalize_h, s * hsv_normalize_sv, v * hsv_normalize_sv])
 
     if just_one:
         converted = converted[0]
@@ -91,7 +89,7 @@ def hsv_to_rgb(
     converted = []
     for hsv in hsv_list:
         (r, g, b) = colorsys.hsv_to_rgb(hsv[0] / hsv_normalize_h, hsv[1] / hsv_normalize_sv, hsv[2] / hsv_normalize_sv)
-        converted.append([round_to_int(r * 255), round_to_int(g * 255), round_to_int(b * 255)])
+        converted.append([r * 255, g * 255, b * 255])
 
     if just_one:
         converted = converted[0]
@@ -117,9 +115,9 @@ def normalize_8bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[Lis
 
     normalized = []
     for hsv in hsv_list:
-        h = round_to_int((hsv[0] / 255) * 360) % 360
-        s = round_to_int((hsv[1] / 255) * 100)
-        v = round_to_int((hsv[2] / 255) * 100)
+        h = ((hsv[0] / 255) * 360) % 360
+        s = (hsv[1] / 255) * 100
+        v = (hsv[2] / 255) * 100
         normalized.append([h, s, v])
 
     if just_one:

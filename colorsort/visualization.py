@@ -7,7 +7,7 @@ from PIL import Image, ImageOps
 
 import colorsort.config as config
 from colorsort.analyzed_image import AnalyzedImage
-from colorsort.util import ImageOrientation
+from colorsort.util import ImageOrientation, round_to_int
 
 # TODO: write tests for these functions
 # TODO: remove dependency on config file; all parameters should be passed in
@@ -168,7 +168,7 @@ def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[I
     """
     chips = []
     for color in colors:
-        chips.append(Image.new("RGB", (size, size), color=tuple(color)))
+        chips.append(Image.new("RGB", (size, size), color=tuple(np.uint8(np.around(color, 0)))))
 
     return chips
 
@@ -293,7 +293,7 @@ def enforce_matching_width(images: List[Image.Image]) -> List[Image.Image]:
         left = right = int(width_diff / 2)
         if not width_diff % 2 == 0:
             left += 1
-        img_with_border = add_borders(img, left, 0, right, 0)[0]
+        img_with_border = add_borders(img, left, 0, right, 0)
         padded.append(img_with_border)
 
     return padded
@@ -366,18 +366,22 @@ def add_borders(
     return with_borders
 
 
-def save_spectrum_visualization(analyzed_images: List[AnalyzedImage], dest_path: str, display: bool):
+def save_spectrum_visualization(
+    analyzed_images: List[AnalyzedImage], include_all_colors: bool, dest_path: str, display: bool
+):
     """Generate a "spectrum" visualization of the dominant colors in each of a sequence of images.
 
     Final output is a sequence of concatenated bars corresponding to dominant colors.
 
     Args:
         analyzed_images (List[AnalyzedImage]): The sequence of analyzed images for which to generate
-            the spectrum visualization.
+            the spectrum graphic.
+        include_all_colors (bool): Whether to include all detected dominant colors in the generated
+            graphic.
         dest_path (str): The output folder to which to write the generated graphic.
         display (bool): Whether to display the generated graphic.
     """
-    vertical_bars = [get_histogram_as_bar(img) for img in analyzed_images]
+    vertical_bars = [get_histogram_as_bar(img, include_all_colors) for img in analyzed_images]
     spectrum = concat_horizontal(vertical_bars)
 
     if display:
@@ -387,7 +391,7 @@ def save_spectrum_visualization(analyzed_images: List[AnalyzedImage], dest_path:
 
 def get_histogram_as_bar(
     analyzed_image: AnalyzedImage,
-    dominant_color_only: bool = True,
+    include_all_colors: bool,
     height: int = config.DEFAULT_BAR_HEIGHT,
     width: int = config.DEFAULT_BAR_WIDTH,
 ) -> Image.Image:
@@ -397,23 +401,22 @@ def get_histogram_as_bar(
 
     Args:
         analyzed_image (Image): The analyzed image from which to generate the histogram.
-        dominant_color_only (bool, optional): Whether to include just the single most dominant color.
-            Defaults to True.
+        include_all_colors (bool, optional): Whether to include all detected dominant colors in the generated
+            bar graphic.
         height (int, optional): The height of the generated bar. Defaults to conf.DEFAULT_BAR_HEIGHT.
         width (int, optional): The width of the generated bar. Defaults to conf.DEFAULT_BAR_WIDTH.
 
     Returns:
         Image: An image representing the provided image's dominant color histogram.
     """
-    if dominant_color_only:
-        color_hist = [(analyzed_image.get_dominant_color(), 1)]
-        print(f"{analyzed_image.image_path.stem} - {analyzed_image.get_dominant_color(hsv=True)}")
-    else:
+    if include_all_colors:
         color_hist = analyzed_image.cluster_histogram
+    else:
+        color_hist = [(analyzed_image.get_dominant_color(), 1)]
 
     bar_components = []
     for color_rgb, proportion in color_hist:  # build top-down
         converted = tuple([int(color) for color in color_rgb])
-        bar_components.append(Image.new("RGB", (width, proportion * height), color=converted))
+        bar_components.append(Image.new("RGB", (width, round_to_int(proportion * height)), color=converted))
 
     return concat_vertical(bar_components)

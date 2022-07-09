@@ -100,8 +100,8 @@ class AnalyzedImage:
             current_hue_list = hue_dist[i]
             hue = current_hue_list[0]
             if len(current_hue_list[1]) > 0:
-                avg_sat = util.round_to_int(np.median([hsv[1] for hsv in current_hue_list[1]]))
-                avg_val = util.round_to_int(np.median([hsv[2] for hsv in current_hue_list[1]]))
+                avg_sat = np.median([hsv[1] for hsv in current_hue_list[1]])
+                avg_val = np.median([hsv[2] for hsv in current_hue_list[1]])
             else:
                 logging.warning(
                     f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
@@ -126,7 +126,6 @@ class AnalyzedImage:
         self.cluster_histogram = build_histogram_from_clusters(self.model)
         dominant_colors_rgb = [rgb.tolist() for rgb, _ in self.cluster_histogram]
         dominant_colors_hsv = util.rgb_to_hsv(dominant_colors_rgb)
-        dominant_colors_rgb = [np.around(rgb) for rgb in dominant_colors_rgb]
         return dominant_colors_rgb, dominant_colors_hsv
 
     def get_as_array(self, hsv=False) -> np.array:
