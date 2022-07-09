@@ -4,18 +4,20 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-def fit_and_predict(image_rgb: np.array, n_clusters: int) -> Tuple[KMeans, np.array]:
-    """_summary_
+def fit_and_predict(rgb_image_data: np.array, n_clusters: int) -> Tuple[KMeans, np.array]:
+    """Create a scikit-learn k-means model and fit to provided data.
+
+    Create the model, fit it to the provided RGB image data, and get predictions for the provided data.
 
     Args:
-        image_rgb (np.array): _description_
-        n_clusters (int): _description_
+        rgb_image_data (np.array): An RGB image as an array.
+        n_clusters (int): The number of clusters to find in the data.
 
     Returns:
-        Tuple[KMeans, np.array]: _description_
+        Tuple[KMeans, np.array]: The fitted model clusters and the predictions for the provided data.
     """
-    image_size = image_rgb.shape[0] * image_rgb.shape[1]
-    image_rgb_data = image_rgb.reshape((image_size, 3))
+    image_size = rgb_image_data.shape[0] * rgb_image_data.shape[1]
+    image_rgb_data = rgb_image_data.reshape((image_size, 3))
     clusters = KMeans(n_clusters=n_clusters, random_state=0)
     predicted = clusters.fit_predict(image_rgb_data)
     return clusters, predicted
@@ -32,10 +34,10 @@ def build_histogram_from_clusters(cluster_model: KMeans) -> List[Tuple[np.array,
             proportions.
     """
     bins = np.arange(0, len(cluster_model.cluster_centers_) + 1)  # bins by label ([0, 1, 2, 3, ...])
-    hist, _ = np.histogram(cluster_model.labels_, bins=bins)  # array of counts by label
-    hist = hist.astype("float32")
-    hist /= hist.sum()  # array of proportions
-    color_and_proportion = list(zip(cluster_model.cluster_centers_, hist))  # cluster centers are RGB colors
+    histogram, _ = np.histogram(cluster_model.labels_, bins=bins)  # array of counts by label
+    histogram = histogram.astype("float32")
+    histogram /= histogram.sum()  # array of proportions
+    color_and_proportion = list(zip(cluster_model.cluster_centers_, histogram))  # cluster centers are RGB colors
 
     return [
         (rgb_color, proportion)

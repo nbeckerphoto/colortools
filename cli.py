@@ -5,9 +5,9 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-import colorsort.config as conf
+import colorsort.config as config
 import colorsort.util as util
-import colorsort.visualization as vis
+import colorsort.visualization as visualization
 from colorsort.analyzed_image import AnalyzedImage
 from colorsort.heuristics import NHeuristic
 
@@ -19,9 +19,10 @@ def parse_args() -> argparse.Namespace:
     """Parse commandline arguments.
 
     Generates two subparsers:
-    - analyze: Given an image (or a directory thereof), determine the image's dominant colors. Graphics saved to
-    disk at the supplied location.
-    - sort: Given a directory, perform color analysis on all images therein, then save copies named by sorted order.
+    - analyze: Given an image (or a directory thereof), determine the image's dominant colors. Graphics are saved
+        to disk at the supplied location.
+    - sort: Given a directory, perform color analysis on all images therein, sort them by their dominant hue,
+        then save copies prefixed with sorted order.
 
     Returns:
         argparse.Namespace: The arguments parsed from the commandline interface.
@@ -41,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     subparser_parent.add_argument(
         "--n_colors",
         type=int,
-        default=conf.DEFAULT_N_COLORS,
+        default=config.DEFAULT_N_COLORS,
         help="Number of dominant colors to compute.",
     )
     subparser_parent.add_argument(
@@ -59,13 +60,13 @@ def parse_args() -> argparse.Namespace:
     subparser_parent.add_argument(
         "--output_dir",
         type=Path,
-        default=Path(conf.DEFAULT_OUTPUT_DIR),
+        default=Path(config.DEFAULT_OUTPUT_DIR),
         help="Output directory for sorted .jpg files.",
     )
     subparser_parent.add_argument(
-        "--generate_chips_graphic",
+        "--save_dominant_color_visualization",
         action="store_true",
-        help="Save chips visualization for each image.",
+        help="Save dominant color visualization for each image.",
     )
     subparser_parent.add_argument(
         "--include_remapped_image",
@@ -107,7 +108,7 @@ def main():
         all_image_reps.append(
             AnalyzedImage(
                 image_path=jpg_path,
-                resize_long_axis=conf.DEFAULT_RESIZE_LONG_AXIS,
+                resize_long_axis=config.DEFAULT_RESIZE_LONG_AXIS,
                 dominant_color_algorithm=args.algorithm,
                 n_colors=args.n_colors,
                 auto_n_heuristic=args.auto_n_heuristic,
@@ -122,20 +123,20 @@ def main():
         dest_dir = Path(f"{args.output_dir}/sorted/{timestamp}")
         for i, image_rep in enumerate(all_image_reps):
             sorted_image_dest = dest_dir / image_rep.generate_filename(i, "sorted")
-            vis.save(image_rep, sorted_image_dest)
+            visualization.save(image_rep, sorted_image_dest)
 
         if args.spectrum:
             print("Saving spectrum...")
             filename = f"{timestamp}_spectrum_n={args.n_colors}.jpg"
             spectrum_dest = Path(f"{args.output_dir}/spectrums/{filename}")
-            vis.save_spectrum_visualization(all_image_reps, spectrum_dest)
+            visualization.save_spectrum_visualization(all_image_reps, spectrum_dest)
 
-    if args.generate_chips_graphic:
+    if args.save_dominant_color_visualization:
         print("Saving chips...")
         dest_dir = Path(f"{args.output_dir}/chips/{timestamp}")
         for i, image_rep in enumerate(all_image_reps):
             chips_dest = dest_dir / image_rep.generate_filename(i, "chips")
-            vis.save_chips_visualization(
+            visualization.save_dominant_color_visualization(
                 image_rep,
                 chips_dest,
                 image_orientation=args.orientation,

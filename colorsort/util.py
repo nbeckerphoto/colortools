@@ -1,9 +1,11 @@
 import colorsys
 from enum import Enum
-from typing import List
+from typing import List, Union
 
 
 class ImageOrientation(Enum):
+    """Enum for image orientations."""
+
     HORIZONTAL = 0
     VERTICAL = 1
     AUTO = 2
@@ -16,15 +18,38 @@ class ImageOrientation(Enum):
 
 
 class DominantColorAlgorithm(Enum):
+    """Enum for dominant color algorithms."""
+
     HUE_DIST = "HUE_DIST"
     KMEANS = "KMEANS"
 
 
-def round_to_int(val):
+def round_to_int(val: float) -> int:
+    """Round a float to the nearest integer.
+
+    Args:
+        val (float): The float to round.
+
+    Returns:
+        int: The rounded integer.
+    """
     return int(val + 0.5)
 
 
-def rgb_to_hsv(rgb_list, normalize_h=360, normalize_sv=100):
+def rgb_to_hsv(
+    rgb_list: Union[List[int], List[List[int]]], hsv_normalize_h: int = 360, hsv_normalize_sv: int = 100
+) -> Union[List[int], List[List[int]]]:
+    """Convert an RGB array to HSV.
+
+    Args:
+        rgb_list (Union[List[int], List[List[int]]]): A single RGB array, or a list of them.
+        hsv_normalize_h (int, optional): The target normalization factor for HSV hues. Defaults to 360.
+        hsv_normalize_sv (int, optional): The target normalization factor for HSV saturations and values.
+            Defaults to 100.
+
+    Returns:
+        Union[List[int], List[List[int]]]: The converted HSV array, or a list of them.
+    """
     print(rgb_list)
     if not isinstance(rgb_list[0], List):
         just_one = True
@@ -36,7 +61,7 @@ def rgb_to_hsv(rgb_list, normalize_h=360, normalize_sv=100):
     for rgb in rgb_list:
         (h, s, v) = colorsys.rgb_to_hsv(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255)
         converted.append(
-            [round_to_int(h * normalize_h), round_to_int(s * normalize_sv), round_to_int(v * normalize_sv)]
+            [round_to_int(h * hsv_normalize_h), round_to_int(s * hsv_normalize_sv), round_to_int(v * hsv_normalize_sv)]
         )
 
     if just_one:
@@ -44,7 +69,20 @@ def rgb_to_hsv(rgb_list, normalize_h=360, normalize_sv=100):
     return converted
 
 
-def hsv_to_rgb(hsv_list, normalize_h=360, normalize_sv=100):
+def hsv_to_rgb(
+    hsv_list: Union[List[int], List[List[int]]], hsv_normalize_h: int = 360, hsv_normalize_sv: int = 100
+) -> Union[List[int], List[List[int]]]:
+    """Convert an HSV array to RGB.
+
+    Args:
+        hsv_list (Union[List[int], List[List[int]]]): A single HSV array, or a list of them.
+        hsv_normalize_h (int, optional): The source normalization factor for HSV hues. Defaults to 360.
+        hsv_normalize_sv (int, optional): The source normalization factor for HSV saturations and values.
+            Defaults to 100.
+
+    Returns:
+        Union[List[int], List[List[int]]]: The converted RGB array, or a list of them.
+    """
     if not isinstance(hsv_list[0], List):
         just_one = True
         hsv_list = [hsv_list]
@@ -53,7 +91,7 @@ def hsv_to_rgb(hsv_list, normalize_h=360, normalize_sv=100):
 
     converted = []
     for hsv in hsv_list:
-        (r, g, b) = colorsys.hsv_to_rgb(hsv[0] / normalize_h, hsv[1] / normalize_sv, hsv[2] / normalize_sv)
+        (r, g, b) = colorsys.hsv_to_rgb(hsv[0] / hsv_normalize_h, hsv[1] / hsv_normalize_sv, hsv[2] / hsv_normalize_sv)
         converted.append([round_to_int(r * 255), round_to_int(g * 255), round_to_int(b * 255)])
 
     if just_one:
@@ -61,7 +99,17 @@ def hsv_to_rgb(hsv_list, normalize_h=360, normalize_sv=100):
     return converted
 
 
-def normalize_hsv(hsv_list):
+def normalize_8_bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[List[int], List[List[int]]]:
+    """Normalize an HSV array specified with 8-bit integers to the standard HSV space.
+
+    Standard HSV space: hue [0..360], sat [0..100], val [0..100].
+
+    Args:
+        hsv_list (Union[List[int], List[List[int]]]): A single HSV array, or a list of them.
+
+    Returns:
+        Union[List[int], List[List[int]]]: The normalized HSV array, or a list of them.
+    """
     if not isinstance(hsv_list[0], List):
         just_one = True
         hsv_list = [hsv_list]
