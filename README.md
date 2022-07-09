@@ -1,10 +1,11 @@
 # ColorSort
 
-A commandline tool for sorting images by their dominant color. 
+A commandline tool for sorting images by their dominant color. Updates coming soon! 
 
+## Usage
 There are two main routines: `analyze` and `sort`.
 
-```
+```sh
 $ python cli.py --help
 usage: cli.py [-h] {analyze,sort} ...
 
@@ -19,8 +20,11 @@ optional arguments:
   -h, --help      show this help message and exit
 ```
 
+### `analyze`
+
 `analyze`: Given an image (or a directory thereof), determine the image's dominant colors. Graphics are saved to disk at the supplied location.
-```
+
+```sh
 $ python cli.py analyze --help
 usage: cli.py analyze [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
                       [--generate_chips_graphic] [--include_remapped_image] [--display]
@@ -47,8 +51,11 @@ optional arguments:
   --display             Display generated graphics.
 ```
 
+### `sort`
+
 `sort`: Given a directory, perform color analysis on all images therein, sort them by their dominant hue, then save copies prefixed with sorted order. 
-```
+
+```sh
 $ python cli.py sort --help   
 usage: cli.py sort [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--auto_n_heuristic AUTO_N_HEURISTIC] [--orientation ORIENTATION] [--output_dir OUTPUT_DIR]
                    [--generate_chips_graphic] [--include_remapped_image] [--display] [--spectrum] [--anchor ANCHOR] [--reverse]
@@ -78,4 +85,16 @@ optional arguments:
   --reverse             Reverse the color sort order.
 ```
 
-Updates coming soon! 
+### Tests and Coverage
+... can be run with 
+
+```
+$ coverage run -m pytest tests && coverage html
+$ open htmlcov/index.html
+```
+
+### v1.0.0 TODO
+- Installable via `pip`
+- \>=80% test coverage
+- Image collage generation
+- Ensure that spectrum generation works with \>1 color per bar. 
