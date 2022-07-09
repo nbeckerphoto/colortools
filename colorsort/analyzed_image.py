@@ -44,6 +44,8 @@ class AnalyzedImage:
             auto_n_heuristic (NHeuristic): The heuristic to use for automatically determining the number of
                 colors to find in this image. More useful when using KMEANS for determining dominant colors.
         """
+        if isinstance(image_path, str):
+            image_path = Path(image_path)
         self.image_path = image_path
         self.dominant_color_algorithm = dominant_color_algorithm
 
@@ -62,10 +64,12 @@ class AnalyzedImage:
         self.pil_image = pil_image.resize((resized_width, resized_height))
         self.width, self.height = self.pil_image.size
 
-        # set n using selected heuristic
+        # set n, if not provided
         if n_colors is None or n_colors == 0:
-            n_heuristic = get_n_heuristic(auto_n_heuristic)
-            self.n_colors = n_heuristic(self.get_as_array(hsv=True))
+            if auto_n_heuristic is None:
+                raise ValueError("Must provide either n_colors or auto_n_heuristic.")
+            auto_n_heuristic_func = get_n_heuristic(auto_n_heuristic)
+            self.n_colors = auto_n_heuristic_func(self.get_as_array(hsv=True))
         else:
             self.n_colors = n_colors
 
@@ -79,7 +83,7 @@ class AnalyzedImage:
         elif self.dominant_color_algorithm == util.DominantColorAlgorithm.KMEANS:
             self.dominant_colors_rgb, self.dominant_colors_hsv = self.get_dominant_colors_kmeans(self.n_colors)
         else:
-            raise ValueError(f"Unrecognized dominant color algorithm: {self.dominant_color_algorithm.value}")
+            raise ValueError(f"Unrecognized dominant color algorithm: {self.dominant_color_algorithm}")
 
     def get_dominant_colors_hue_dist(self, n_colors: int) -> Tuple[List, List]:
         """Get dominant colors using the HUE_DIST algorithm.
