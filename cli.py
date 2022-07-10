@@ -21,7 +21,7 @@ def parse_args() -> argparse.Namespace:
     Returns:
         argparse.Namespace: The arguments parsed from the commandline interface.
     """
-    parser = argparse.ArgumentParser(description="ColorSort")
+    parser = argparse.ArgumentParser(description="ColorTools")
     parser.add_argument("input", type=Path, help="Input directory of .jpg files (or a single .jpg file).")
     parser.add_argument(
         "--algorithm",

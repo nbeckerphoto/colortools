@@ -10,7 +10,7 @@ usage: cli.py [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--n_colors_heu
               [--spectrum_all_colors] [--collage] [--summary]
               input
 
-ColorSort
+ColorTools
 
 positional arguments:
   input                 Input directory of .jpg files (or a single .jpg file).
