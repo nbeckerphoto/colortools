@@ -51,6 +51,7 @@ $ coverage run -m pytest tests && coverage html && open htmlcov/index.html
 
 ### v1.0.0 TODO
 - Installable via `pip`
+- Better argument checking/setting in CLI.
 - ~~Clean up CLI options.~~
 - ~~\>=90% test coverage~~
 - ~~Image collage generation~~

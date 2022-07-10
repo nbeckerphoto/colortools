@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Next Release] - In progress
+### Changed 
+- Overhauled CLI: 
+    - Removed subparsers `analyze` and `sort` and parameterized sorting. Graphics can now be generated independent of sorting.
+    - Made argument naming and ordering more consistent and logical. 
+    - Use configuration file more consistently.
+- Cleaned up configuration file and some default settings.
+- Moved `colorsort()` function out of `AnalyzedImage` class and into new `sort.py` file. 
+
 ## [0.2.0] - 9 Jul 2022
 ### Added
 - Option for generating collages of sorted images. 
