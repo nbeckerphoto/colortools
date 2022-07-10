@@ -78,6 +78,15 @@ def test_initialization_error_n_colors_n_heuristic(dominant_color_algorithm):
         _ = AnalyzedImage(image_path, None, dominant_color_algorithm, None, None)
 
 
+@pytest.mark.parametrize("n_colors", [0, None, 1])
+def test_initialization_hue_dist_default_n_heuristic(n_colors):
+    image_path = "tests/test_images/red-blue.jpg"
+    analyzed_image = AnalyzedImage(
+        image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, NColorsHeuristic.DEFAULT
+    )
+    assert analyzed_image.n_colors == 1
+
+
 def test_initialization_error_bad_algorithm():
     image_path = "tests/test_images/red-blue.jpg"
     with pytest.raises(ValueError):
