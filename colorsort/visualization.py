@@ -1,3 +1,4 @@
+import logging
 import math
 import os
 from pathlib import Path
@@ -9,6 +10,8 @@ from PIL import Image, ImageOps
 import colorsort.config as config
 from colorsort.analyzed_image import AnalyzedImage
 from colorsort.util import ImageOrientation, round_array, round_to_int
+
+logging.basicConfig(format="%(levelname)s: %(message)s")
 
 # TODO: write tests for these functions
 # TODO: remove dependency on config file; all parameters should be passed in
@@ -73,9 +76,11 @@ def save_dominant_color_visualization(
 
     visualization_components = [analyzed_image.pil_image, stacked_chips]
     if include_remapped_image:
-        remapped_image = analyzed_image.get_remapped_image()
-        if remapped_image:
+        try:
+            remapped_image = analyzed_image.get_remapped_image()
             visualization_components.append(remapped_image)
+        except ValueError as e:
+            logging.warning(f"Unable to include remapped image: {e}")
     outer_border = int(config.DEFAULT_DOMINANT_COLOR_CHIP_BORDER / 2)
     inner_border = int(config.DEFAULT_DOMINANT_COLOR_CHIP_BORDER / 4)
     if visualization_orientation == ImageOrientation.HORIZONTAL:

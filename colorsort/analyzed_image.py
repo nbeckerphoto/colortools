@@ -17,6 +17,8 @@ import colorsort.util as util
 from colorsort.analysis import build_histogram_from_clusters, fit_and_predict
 from colorsort.heuristics import NColorsHeuristic, compute_hue_dist, get_n_heuristic
 
+logging.basicConfig(format="%(levelname)s: %(message)s")
+
 
 class AnalyzedImage:
     """
@@ -65,10 +67,13 @@ class AnalyzedImage:
 
         # set n, if not provided
         if n_colors is None or n_colors == 0:
-            if auto_n_heuristic is None:
-                raise ValueError("Must provide either n_colors or auto_n_heuristic.")
-            auto_n_heuristic_func = get_n_heuristic(auto_n_heuristic)
-            self.n_colors = auto_n_heuristic_func(self.get_as_array(hsv=True))
+            if self.dominant_color_algorithm == util.DominantColorAlgorithm.HUE_DIST:
+                self.n_colors = 1
+            else:
+                if auto_n_heuristic is None:
+                    raise ValueError("Must provide either n_colors (>0) or auto_n_heuristic.")
+                auto_n_heuristic_func = get_n_heuristic(auto_n_heuristic)
+                self.n_colors = auto_n_heuristic_func(self.get_as_array(hsv=True))
         else:
             self.n_colors = n_colors
 
@@ -219,8 +224,7 @@ class AnalyzedImage:
             remapped_image = np.array([target_colors[i] for i in other_predicted])
             return Image.fromarray(np.uint8(remapped_image.reshape((self.height, self.width, 3))))
         else:
-            logging.warning(f"Cannot remap images using the {self.dominant_color_algorithm.value} algorithm")
-            return None
+            raise ValueError(f"Cannot remap images using the {self.dominant_color_algorithm.value} algorithm")
 
     def generate_filename(self, index: int, base: str) -> str:
         """Generate a filename using this analyzed image.

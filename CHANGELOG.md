@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. The format 
     - Use configuration file more consistently.
 - Cleaned up configuration file and some default settings.
 - Moved `colorsort()` function out of `AnalyzedImage` class and into new `sort.py` file. 
+- Improved logging
 
 ## [0.2.0] - 9 Jul 2022
 ### Added
