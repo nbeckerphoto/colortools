@@ -1,10 +1,14 @@
 import colorsys
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
 from typing import List, Union
 
 import numpy as np
 
 
+# enums
+# --------------------------------------------------------------------------------
 class ImageOrientation(Enum):
     """Enum for image orientations."""
 
@@ -26,6 +30,21 @@ class DominantColorAlgorithm(Enum):
     KMEANS = "KMEANS"
 
 
+# general operations
+# --------------------------------------------------------------------------------
+def get_timestamp_string():
+    return datetime.now().strftime("%Y%m%d%H%M%S")
+
+
+def collect_jpg_paths(input_dir):
+    if not isinstance(input_dir, Path):
+        input_dir = Path(input_dir)
+
+    return [input_dir] if input_dir.is_file() else list(input_dir.rglob("*.jpg"))
+
+
+# mathematical operations
+# --------------------------------------------------------------------------------
 def round_to_int(val: float) -> int:
     """Round a single float value to the nearest integer.
 
@@ -51,6 +70,37 @@ def round_array(vals: Union[List, np.array]) -> Union[List[List[int]], List[int]
     return [a.tolist() for a in rounded]
 
 
+def normalize_8bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[List[int], List[List[int]]]:
+    """Normalize an HSV array specified with 8-bit integers to the standard HSV space.
+
+    Standard HSV space: hue [0..360], sat [0..100], val [0..100].
+
+    Args:
+        hsv_list (Union[List[int], List[List[int]]]): A single HSV array, or a list of them.
+
+    Returns:
+        Union[List[int], List[List[int]]]: The normalized HSV array, or a list of them.
+    """
+    if not isinstance(hsv_list[0], List):
+        just_one = True
+        hsv_list = [hsv_list]
+    else:
+        just_one = False
+
+    normalized = []
+    for hsv in hsv_list:
+        h = ((hsv[0] / 255) * 360) % 360
+        s = (hsv[1] / 255) * 100
+        v = (hsv[2] / 255) * 100
+        normalized.append([h, s, v])
+
+    if just_one:
+        normalized = normalized[0]
+    return normalized
+
+
+# color space conversions
+# --------------------------------------------------------------------------------
 def rgb_to_hsv(
     rgb_list: Union[List[int], List[List[int]]], hsv_normalize_h: int = 360, hsv_normalize_sv: int = 100
 ) -> Union[List[int], List[List[int]]]:
@@ -109,35 +159,6 @@ def hsv_to_rgb(
     if just_one:
         converted = converted[0]
     return converted
-
-
-def normalize_8bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[List[int], List[List[int]]]:
-    """Normalize an HSV array specified with 8-bit integers to the standard HSV space.
-
-    Standard HSV space: hue [0..360], sat [0..100], val [0..100].
-
-    Args:
-        hsv_list (Union[List[int], List[List[int]]]): A single HSV array, or a list of them.
-
-    Returns:
-        Union[List[int], List[List[int]]]: The normalized HSV array, or a list of them.
-    """
-    if not isinstance(hsv_list[0], List):
-        just_one = True
-        hsv_list = [hsv_list]
-    else:
-        just_one = False
-
-    normalized = []
-    for hsv in hsv_list:
-        h = ((hsv[0] / 255) * 360) % 360
-        s = (hsv[1] / 255) * 100
-        v = (hsv[2] / 255) * 100
-        normalized.append([h, s, v])
-
-    if just_one:
-        normalized = normalized[0]
-    return normalized
 
 
 # def get_sample(image: np.array) -> np.array:

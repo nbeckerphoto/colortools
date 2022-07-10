@@ -41,8 +41,8 @@ def save(image: Union[AnalyzedImage, Image.Image, np.array], dest_path: Union[Pa
 
 def save_dominant_color_visualization(
     analyzed_image: AnalyzedImage,
+    dominant_color_chip_size: int,
     dest_path: str,
-    visualization_orientation: ImageOrientation,
     include_remapped_image: bool,
     display: bool,
 ):
@@ -53,8 +53,8 @@ def save_dominant_color_visualization(
 
     Args:
         analyzed_image (AnalyzedImage): The analyzed image for which to generate the dominant color visualization.
+        dominant_color_chip_size (int): The size of the "chips" representing dominant colors.
         dest_path (str): The output folder to which to save image files.
-        visualization_orientation (ImageOrientation): The orientation of the saved output graphic.
         include_remapped_image (bool): Include the remapped (color-reduced) image alongside the original graphic
             and dominant color chips.
         display (bool): Whether to display the generated graphic.
@@ -63,20 +63,21 @@ def save_dominant_color_visualization(
         ValueError: If an unrecognized orientation value is provided.
     """
     image_orientation = analyzed_image.get_orientation()
-    if visualization_orientation == ImageOrientation.AUTO:
-        visualization_orientation = image_orientation.rotate()
+    visualization_orientation = image_orientation.rotate()
 
     stacked_chips = get_2d_stack(
-        get_color_chips(analyzed_image.get_dominant_colors()),
-        config.DEFAULT_CHIP_GAP,
+        get_color_chips(analyzed_image.get_dominant_colors(), dominant_color_chip_size),
+        config.DEFAULT_DOMINANT_COLOR_CHIP_GAP,
         image_orientation,
     )
 
     visualization_components = [analyzed_image.pil_image, stacked_chips]
     if include_remapped_image:
-        visualization_components.append(analyzed_image.get_remapped_image())
-    outer_border = int(config.DEFAULT_CHIP_BORDER / 2)
-    inner_border = int(config.DEFAULT_CHIP_BORDER / 4)
+        remapped_image = analyzed_image.get_remapped_image()
+        if remapped_image:
+            visualization_components.append(remapped_image)
+    outer_border = int(config.DEFAULT_DOMINANT_COLOR_CHIP_BORDER / 2)
+    inner_border = int(config.DEFAULT_DOMINANT_COLOR_CHIP_BORDER / 4)
     if visualization_orientation == ImageOrientation.HORIZONTAL:
         visualization = pad_concat_horizontal(visualization_components, outer_border, inner_border)
     elif visualization_orientation == ImageOrientation.VERTICAL:
@@ -157,12 +158,12 @@ def concat_vertical(images: List[Image.Image]) -> Image.Image:
     return dest_image
 
 
-def get_color_chips(colors: List[List], size=config.DEFAULT_CHIP_SIZE) -> List[Image.Image]:
+def get_color_chips(colors: List[List], size) -> List[Image.Image]:
     """Get a set of chips (small, single-color images) representing each dominant color.
 
     Args:
         colors (List[List]): The RGB colors to get chips for.
-        size (_type_, optional): The size of the generated chips. Defaults to config.DEFAULT_CHIP_SIZE.
+        size (int, optional): The size of the generated chips.
 
     Returns:
         List[Image.Image]: A list of chips corresponding to the provided colors.

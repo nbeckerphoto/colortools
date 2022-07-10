@@ -9,7 +9,7 @@ PIL_NUM_HUES = 256  # images converted to HSV are in the range 0-255 (8 bits)
 MAX_N = 8
 
 
-class NHeuristic(str, Enum):
+class NColorsHeuristic(str, Enum):
     """Enum type for heuristic names."""
 
     AUTO_N_HUE = "AUTO_N_HUE"
@@ -18,7 +18,7 @@ class NHeuristic(str, Enum):
     AUTO_N_SIMPLE_THRESHOLD = "AUTO_N_SIMPLE_THRESHOLD"
 
 
-def get_n_heuristic(heuristic_name: NHeuristic) -> Callable:
+def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
     """Get the function that corresponds to a heuristic name.
 
     Args:
@@ -30,13 +30,13 @@ def get_n_heuristic(heuristic_name: NHeuristic) -> Callable:
     Returns:
         Callable: The function corresponding to a heuristic name.
     """
-    if heuristic_name == NHeuristic.AUTO_N_HUE:
+    if heuristic_name == NColorsHeuristic.AUTO_N_HUE:
         return auto_n_hue
-    elif heuristic_name == NHeuristic.AUTO_N_HUE_BINNED:
+    elif heuristic_name == NColorsHeuristic.AUTO_N_HUE_BINNED:
         return auto_n_hue_binned
-    elif heuristic_name == NHeuristic.AUTO_N_BINNED_WITH_THRESHOLD:
+    elif heuristic_name == NColorsHeuristic.AUTO_N_BINNED_WITH_THRESHOLD:
         return auto_n_binned_with_threshold
-    elif heuristic_name == NHeuristic.AUTO_N_SIMPLE_THRESHOLD:
+    elif heuristic_name == NColorsHeuristic.AUTO_N_SIMPLE_THRESHOLD:
         return auto_n_simple_threshold
     else:
         raise ValueError(f"Invalid heuristic selected: {heuristic_name}")

@@ -1,16 +1,16 @@
 import numpy as np
 import pytest
 from colorsort.analyzed_image import AnalyzedImage
-from colorsort.heuristics import NHeuristic
+from colorsort.heuristics import NColorsHeuristic
 from colorsort.util import DominantColorAlgorithm, ImageOrientation, hsv_to_rgb, rgb_to_hsv
 
 from conftest import ARRAY_TOLERANCE, get_image_path
 
 AUTO_N_HEURISTICS = [
-    NHeuristic.AUTO_N_HUE,
-    NHeuristic.AUTO_N_HUE_BINNED,
-    NHeuristic.AUTO_N_BINNED_WITH_THRESHOLD,
-    NHeuristic.AUTO_N_SIMPLE_THRESHOLD,
+    NColorsHeuristic.AUTO_N_HUE,
+    NColorsHeuristic.AUTO_N_HUE_BINNED,
+    NColorsHeuristic.AUTO_N_BINNED_WITH_THRESHOLD,
+    NColorsHeuristic.AUTO_N_SIMPLE_THRESHOLD,
 ]
 
 DOMINANT_COLOR_ALGORITHMS = [DominantColorAlgorithm.HUE_DIST, DominantColorAlgorithm.KMEANS]
@@ -105,74 +105,3 @@ def test_generate_filename(n_colors, index, base):
         assert f"{str(index)}_" in test_filename
     assert f"{str(base)}_" in test_filename
     assert f"_n={str(n_colors)}.jpg" in test_filename
-
-
-def test_colorsort():
-    dims = (100, 100)
-    colors = ["black", "blue", "gray", "green", "red", "white"]
-    image_paths = [get_image_path(dims, color) for color in colors]
-    analyzed_images = [
-        AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, 1, None) for image_path in image_paths
-    ]
-
-    sorted_all, sorted_color, sorted_bw = AnalyzedImage.colorsort(analyzed_images, None)
-    sorted_all_filenames = [image.image_path.name for image in sorted_all]
-    assert sorted_all_filenames == [
-        "100-by-100-red.jpg",
-        "100-by-100-green.jpg",
-        "100-by-100-blue.jpg",
-        "100-by-100-black.jpg",
-        "100-by-100-gray.jpg",
-        "100-by-100-white.jpg",
-    ]
-
-    sorted_color_filenames = [image.image_path.name for image in sorted_color]
-    assert sorted_color_filenames == [
-        "100-by-100-red.jpg",
-        "100-by-100-green.jpg",
-        "100-by-100-blue.jpg",
-    ]
-
-    sorted_bw_filenames = [image.image_path.name for image in sorted_bw]
-    assert sorted_bw_filenames == [
-        "100-by-100-black.jpg",
-        "100-by-100-gray.jpg",
-        "100-by-100-white.jpg",
-    ]
-
-
-@pytest.mark.parametrize(
-    "anchor_image,target_color",
-    [
-        ("100-by-100-red.jpg", ["100-by-100-red.jpg", "100-by-100-green.jpg", "100-by-100-blue.jpg"]),
-        ("100-by-100-green.jpg", ["100-by-100-green.jpg", "100-by-100-blue.jpg", "100-by-100-red.jpg"]),
-        ("100-by-100-blue.jpg", ["100-by-100-blue.jpg", "100-by-100-red.jpg", "100-by-100-green.jpg"]),
-        ("100-by-100-white.jpg", ["100-by-100-red.jpg", "100-by-100-green.jpg", "100-by-100-blue.jpg"]),
-    ],
-)
-def test_colorsortw_with_anchor(anchor_image, target_color):
-    dims = (100, 100)
-    colors = ["black", "blue", "gray", "green", "red", "white"]
-    image_paths = [get_image_path(dims, color) for color in colors]
-    analyzed_images = [
-        AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, 1, None) for image_path in image_paths
-    ]
-
-    sorted_all, sorted_color, sorted_bw = AnalyzedImage.colorsort(analyzed_images, anchor_image)
-
-    target_bw = [
-        "100-by-100-black.jpg",
-        "100-by-100-gray.jpg",
-        "100-by-100-white.jpg",
-    ]
-    target_all = list(target_color)
-    target_all.extend(target_bw)
-
-    sorted_all_filenames = [image.image_path.name for image in sorted_all]
-    assert sorted_all_filenames == target_all
-
-    sorted_color_filenames = [image.image_path.name for image in sorted_color]
-    assert sorted_color_filenames == target_color
-
-    sorted_bw_filenames = [image.image_path.name for image in sorted_bw]
-    assert sorted_bw_filenames == target_bw

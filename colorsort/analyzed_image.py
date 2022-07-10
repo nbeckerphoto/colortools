@@ -7,7 +7,6 @@
 #     https://github.com/baptiste0928/dominant-color/blob/main/src/lib.rs#L27
 
 import logging
-from collections import deque
 from pathlib import Path
 from typing import List, Tuple, Union
 
@@ -16,7 +15,7 @@ from PIL import Image
 
 import colorsort.util as util
 from colorsort.analysis import build_histogram_from_clusters, fit_and_predict
-from colorsort.heuristics import NHeuristic, compute_hue_dist, get_n_heuristic
+from colorsort.heuristics import NColorsHeuristic, compute_hue_dist, get_n_heuristic
 
 
 class AnalyzedImage:
@@ -30,7 +29,7 @@ class AnalyzedImage:
         resize_long_axis: int,
         dominant_color_algorithm: util.DominantColorAlgorithm,
         n_colors: int,
-        auto_n_heuristic: NHeuristic,
+        auto_n_heuristic: NColorsHeuristic,
     ):
         """Create an instance of this class.
 
@@ -107,9 +106,10 @@ class AnalyzedImage:
                 avg_sat = np.median([hsv[1] for hsv in current_hue_list[1]])
                 avg_val = np.median([hsv[2] for hsv in current_hue_list[1]])
             else:
-                logging.warning(
-                    f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
-                )
+                if not self.is_bw:
+                    logging.warning(
+                        f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
+                    )
                 avg_sat, avg_val = 0, 0
             dominant_colors_hsv.append([hue, avg_sat, avg_val])
 
@@ -190,7 +190,7 @@ class AnalyzedImage:
         """
         return self.get_dominant_color(hsv=True)[1] == 0
 
-    def get_remapped_image(self, other: "AnalyzedImage" = None) -> Image.Image:
+    def get_remapped_image(self, other: "AnalyzedImage" = None) -> Union[Image.Image, None]:
         """Use the model created for this image to predict mapped colors for another image (or this image itself).
 
         In machine-learning terms, use the model that was trained with this image representation to predict values for
@@ -205,17 +205,22 @@ class AnalyzedImage:
                 image. If `None`, use this image's original pixels as input. Defaults to None.
 
         Returns:
-            Image.Image: An image mapped to the colors represented by this analyzed image's k-means cluster model.
+            Union[Image.Image, None]: An image mapped to the colors represented by this analyzed image's associated
+                model, if present, else None.
         """
-        target_colors = self.model.cluster_centers_
-        if other is None:
-            other_predicted = self.predicted
-        else:  # experimental - TODO test this
-            other_rgb_data = other.get_as_array().reshape((other.height * other.width, 3))
-            other_predicted = self.model.predict(other_rgb_data)
+        if self.dominant_color_algorithm == util.DominantColorAlgorithm.KMEANS:
+            target_colors = self.model.cluster_centers_
+            if other is None:
+                other_predicted = self.predicted
+            else:  # experimental - TODO test this
+                other_rgb_data = other.get_as_array().reshape((other.height * other.width, 3))
+                other_predicted = self.model.predict(other_rgb_data)
 
-        remapped_image = np.array([target_colors[i] for i in other_predicted])
-        return Image.fromarray(np.uint8(remapped_image.reshape((self.height, self.width, 3))))
+            remapped_image = np.array([target_colors[i] for i in other_predicted])
+            return Image.fromarray(np.uint8(remapped_image.reshape((self.height, self.width, 3))))
+        else:
+            logging.warning(f"Cannot remap images using the {self.dominant_color_algorithm.value} algorithm")
+            return None
 
     def generate_filename(self, index: int, base: str) -> str:
         """Generate a filename using this analyzed image.
@@ -232,7 +237,7 @@ class AnalyzedImage:
         else:
             filename = ""
 
-        dom_color_hsv = self.get_dominant_color(hsv=True)
+        dom_color_hsv = util.round_array(self.get_dominant_color(hsv=True))
         dom_hue, dom_sat, dom_val = dom_color_hsv[0], dom_color_hsv[1], dom_color_hsv[2]
         filename += f"{base}_hue={dom_hue}_sat={dom_sat}_val={dom_val}_n={self.n_colors}.jpg"
         return filename
@@ -261,57 +266,3 @@ class AnalyzedImage:
         dom_hue = self.get_dominant_color(hsv=True)[0]
         dom_hue = (dom_hue + 90) % 360
         return dom_hue
-
-    @staticmethod
-    def colorsort(
-        image_reps: List["AnalyzedImage"], anchor_image: str
-    ) -> Tuple[List["AnalyzedImage"], List["AnalyzedImage"], List["AnalyzedImage"]]:
-        """Static method for sorting a collection of analyzed images by their hue.
-
-        Uses the AnalyzedImage.get_sort_metric() function for sorting color images.
-
-        TODO: add more sorting options here
-
-        Returns:
-            Tuple[List["AnalyzedImage"], List["AnalyzedImage"], List["AnalyzedImage"]]: Three lists:
-                - The first list is all analyzed images. Color images are first, sorted by hue, followed by black
-                  and white images, sorted by value.
-                - The second list is just the color images, sorted by hue.
-                - The third list is just the black and white images, sorted by value.
-        """
-        color = []
-        bw = []
-        for img in image_reps:
-            if img.is_bw():
-                bw.append(img)
-            else:
-                color.append(img)
-
-        # sort by hue, then value
-        color.sort(
-            key=lambda elem: (
-                elem.get_sort_metric(),
-                elem.get_dominant_color(hsv=True)[2],
-            )
-        )
-
-        # sort by value
-        bw.sort(key=lambda elem: elem.get_dominant_color(hsv=True)[2])
-
-        starting_index = 0
-        if anchor_image:
-            try:
-                while not color[starting_index].image_path.name == anchor_image:
-                    starting_index += 1
-            except IndexError:
-                print(f"Starting image {anchor_image} not found!")
-                starting_index = 0
-
-        color = deque(color)
-        for _ in range(starting_index):
-            color.append(color.popleft())
-
-        combined = []
-        combined.extend(color)
-        combined.extend(bw)
-        return combined, color, bw
