@@ -3,7 +3,7 @@ from typing import Callable
 
 import numpy as np
 
-from colorsort.util import round_to_int
+from colortools.util import round_to_int
 
 PIL_NUM_HUES = 256  # images converted to HSV are in the range 0-255 (8 bits)
 MAX_N = 8

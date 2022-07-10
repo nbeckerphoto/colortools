@@ -1,5 +1,5 @@
 import numpy as np
-from colorsort.heuristics import MAX_N, PIL_NUM_HUES
+from colortools.heuristics import MAX_N, PIL_NUM_HUES
 
 ARRAY_TOLERANCE = 1
 

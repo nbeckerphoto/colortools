@@ -5,12 +5,12 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-import colorsort.config as config
-import colorsort.util as util
-import colorsort.visualization as visualization
-from colorsort.analyzed_image import AnalyzedImage
-from colorsort.heuristics import NColorsHeuristic
-from colorsort.sort import colorsort
+import colortools.config as config
+import colortools.util as util
+import colortools.visualization as visualization
+from colortools.analyzed_image import AnalyzedImage
+from colortools.heuristics import NColorsHeuristic
+from colortools.sort import colorsort
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 

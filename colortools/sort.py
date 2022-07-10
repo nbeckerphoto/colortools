@@ -1,7 +1,7 @@
 from collections import deque
 from typing import List, Tuple
 
-from colorsort.analyzed_image import AnalyzedImage
+from colortools.analyzed_image import AnalyzedImage
 
 
 def colorsort(

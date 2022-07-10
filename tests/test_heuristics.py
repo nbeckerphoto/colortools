@@ -1,5 +1,5 @@
 import pytest
-from colorsort.heuristics import (
+from colortools.heuristics import (
     NColorsHeuristic,
     auto_n_binned_with_threshold,
     auto_n_hue,

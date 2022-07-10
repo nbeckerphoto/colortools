@@ -1,5 +1,5 @@
-from colorsort.util import DominantColorAlgorithm
-from colorsort.heuristics import NColorsHeuristic
+from colortools.util import DominantColorAlgorithm
+from colortools.heuristics import NColorsHeuristic
 
 
 DEFAULT_BAR_HEIGHT = 500

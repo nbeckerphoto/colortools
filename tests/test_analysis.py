@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from PIL import Image
-from colorsort.analysis import fit_and_predict
+from colortools.analysis import fit_and_predict
 
 
 @pytest.mark.parametrize("test_side_length, color", [(100, (255, 0, 0)), (100, (0, 255, 0)), (100, (0, 0, 255))])

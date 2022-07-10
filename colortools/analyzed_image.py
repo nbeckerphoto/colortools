@@ -13,9 +13,9 @@ from typing import List, Tuple, Union
 import numpy as np
 from PIL import Image
 
-import colorsort.util as util
-from colorsort.analysis import build_histogram_from_clusters, fit_and_predict
-from colorsort.heuristics import NColorsHeuristic, compute_hue_dist, get_n_heuristic
+import colortools.util as util
+from colortools.analysis import build_histogram_from_clusters, fit_and_predict
+from colortools.heuristics import NColorsHeuristic, compute_hue_dist, get_n_heuristic
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 

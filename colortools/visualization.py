@@ -7,9 +7,9 @@ from typing import List, Union
 import numpy as np
 from PIL import Image, ImageOps
 
-import colorsort.config as config
-from colorsort.analyzed_image import AnalyzedImage
-from colorsort.util import ImageOrientation, round_array, round_to_int
+import colortools.config as config
+from colortools.analyzed_image import AnalyzedImage
+from colortools.util import ImageOrientation, round_array, round_to_int
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 

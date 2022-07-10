@@ -1,4 +1,4 @@
-import colorsort.util as util
+import colortools.util as util
 import numpy as np
 import pytest
 

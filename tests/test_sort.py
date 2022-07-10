@@ -1,7 +1,7 @@
 import pytest
-from colorsort.analyzed_image import AnalyzedImage
-from colorsort.sort import colorsort
-from colorsort.util import DominantColorAlgorithm
+from colortools.analyzed_image import AnalyzedImage
+from colortools.sort import colorsort
+from colortools.util import DominantColorAlgorithm
 
 from conftest import get_image_path
 

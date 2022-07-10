@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
-from colorsort.analyzed_image import AnalyzedImage
-from colorsort.heuristics import NColorsHeuristic
-from colorsort.util import DominantColorAlgorithm, ImageOrientation, hsv_to_rgb, rgb_to_hsv
+from colortools.analyzed_image import AnalyzedImage
+from colortools.heuristics import NColorsHeuristic
+from colortools.util import DominantColorAlgorithm, ImageOrientation, hsv_to_rgb, rgb_to_hsv
 
 from conftest import ARRAY_TOLERANCE, get_image_path
 
