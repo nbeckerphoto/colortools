@@ -98,7 +98,15 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def check_args(args, verbose):
+def check_args(args: argparse.Namespace) -> argparse.Namespace:
+    """Check arguments for conflicts, issuing warnings and fixing arguments as needed.
+
+    Args:
+        args (argparse.Namespace): The arguments to check.
+
+    Returns:
+        argparse.Namespace: The checked arguments.
+    """
     if args.skip_sort and args.save_sorted:
         logging.warning("Unable to save sorted images because skip_sort=True; ignoring save_sorted")
         args.save_sorted = False
@@ -107,61 +115,68 @@ def check_args(args, verbose):
         args.dominant_colors_remapped = False
     if not (args.save_sorted or args.dominant_colors or args.spectrum or args.collage):
         logging.warning("No output graphics are set to be generated! See usage (--help) for more details.")
-
-    if verbose:
-        print()
-        print("Analyze settings:")
-        print(f"- input={args.input}")
-        print(f"- algorithm={args.algorithm}")
-        print(f"- n_colors={args.n_colors}")
-        print(f"- n_colors_heuristic={args.n_colors_heuristic}")
-        print()
-
-        print("Action summary:")
-        print(f"- Black and white images will {'not ' if args.exclude_bw else ''}be included")
-        if not args.skip_sort:
-            print(f"- Images will be sorted in {'reverse' if args.sort_reverse else 'standard'} order")
-            if args.save_sorted:
-                sorted_dir = f"{args.output_dir}/{config.DEFAULT_SORTED_DIR}"
-                print(f"- Sorted images will be saved to {sorted_dir}")
-            if args.sort_anchor:
-                print(f"- Sort anchor image is {args.sort_anchor}")
-        else:
-            print("- Images will not be sorted")
-
-        if args.dominant_colors:
-            dominant_colors_dir = f"{args.output_dir}/{config.DEFAULT_DOMINANT_COLOR_DIR}"
-            print(
-                "- Saving dominant colors graphic "
-                f"{'with remapped images ' if args.dominant_colors_remapped else ''}"
-                f"to {dominant_colors_dir}"
-            )
-
-        if args.spectrum:
-            spectrum_dir = f"{args.output_dir}/{config.DEFAULT_SPECTRUM_DIR}"
-            print(
-                "- Saving spectrum graphic "
-                f"{'with all spectrum colors' if args.spectrum_all_colors else 'with dominant colors only'} "
-                f"to {spectrum_dir}"
-            )
-
-        if args.collage:
-            collage_dir = f"{args.output_dir}/{config.DEFAULT_COLLAGE_DIR}"
-            print(f"- Saving collage graphic to {collage_dir}")
-
-        if args.summary:
-            print("- Summary will be printed at the end of processing")
-
-        print()
-
     return args
 
 
+def print_verbose_output(args: argparse.Namespace):
+    """Print a verbose output for the provided arguments.
+
+    Args:
+        args (argparse.Namespace): The arguments for which to print verbose summary.
+    """
+    print()
+    print("Analyze settings:")
+    print(f"- input={args.input}")
+    print(f"- algorithm={args.algorithm}")
+    print(f"- n_colors={args.n_colors}")
+    print(f"- n_colors_heuristic={args.n_colors_heuristic}")
+    print()
+
+    print("Action summary:")
+    print(f"- Black and white images will {'not ' if args.exclude_bw else ''}be included")
+    if not args.skip_sort:
+        print(f"- Images will be sorted in {'reverse' if args.sort_reverse else 'standard'} order")
+        if args.save_sorted:
+            sorted_dir = f"{args.output_dir}/{config.DEFAULT_SORTED_DIR}"
+            print(f"- Sorted images will be saved to {sorted_dir}")
+        if args.sort_anchor:
+            print(f"- Sort anchor image is {args.sort_anchor}")
+    else:
+        print("- Images will not be sorted")
+
+    if args.dominant_colors:
+        dominant_colors_dir = f"{args.output_dir}/{config.DEFAULT_DOMINANT_COLOR_DIR}"
+        print(
+            "- Saving dominant colors graphic "
+            f"{'with remapped images ' if args.dominant_colors_remapped else ''}"
+            f"to {dominant_colors_dir}"
+        )
+
+    if args.spectrum:
+        spectrum_dir = f"{args.output_dir}/{config.DEFAULT_SPECTRUM_DIR}"
+        print(
+            "- Saving spectrum graphic "
+            f"{'with all spectrum colors' if args.spectrum_all_colors else 'with dominant colors only'} "
+            f"to {spectrum_dir}"
+        )
+
+    if args.collage:
+        collage_dir = f"{args.output_dir}/{config.DEFAULT_COLLAGE_DIR}"
+        print(f"- Saving collage graphic to {collage_dir}")
+
+    if args.summary:
+        print("- Summary will be printed at the end of processing")
+
+    print()
+
+
 def main():
-    args = parse_args()
-    args = check_args(args, args.verbose)
+    args = check_args(parse_args())
     timstamp_str = util.get_timestamp_string()
     jpg_paths = util.collect_jpg_paths(args.input)
+
+    if args.verbose:
+        print_verbose_output()
 
     print(f"Analyzing {len(jpg_paths)} images...")
     analyzed_images = []

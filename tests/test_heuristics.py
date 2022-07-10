@@ -1,10 +1,12 @@
 import pytest
 from colorsort.heuristics import (
+    NColorsHeuristic,
     auto_n_binned_with_threshold,
     auto_n_hue,
     auto_n_hue_binned,
     auto_n_simple_threshold,
     compute_hue_dist,
+    get_n_heuristic,
 )
 
 from conftest import get_hsv_array
@@ -133,3 +135,14 @@ def test_auto_n_simple_threshold(test_hue_number, distribute_hues, extra_hues, t
     test_input = get_hsv_array(test_hue_number, distribute_hues, extra_hues)
     n = auto_n_simple_threshold(test_input, threshold)
     assert n == expected_n
+
+
+def test_get_n_heuristic_default():
+    expected = auto_n_binned_with_threshold
+    test_default = get_n_heuristic(NColorsHeuristic.DEFAULT)
+    assert test_default == expected
+
+
+def test_get_n_heuristic_bad():
+    with pytest.raises(ValueError):
+        _ = get_n_heuristic("FAKE")

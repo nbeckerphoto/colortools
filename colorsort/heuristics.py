@@ -16,6 +16,7 @@ class NColorsHeuristic(str, Enum):
     AUTO_N_HUE_BINNED = "AUTO_N_HUE_BINNED"
     AUTO_N_BINNED_WITH_THRESHOLD = "AUTO_N_BINNED_WITH_THRESHOLD"
     AUTO_N_SIMPLE_THRESHOLD = "AUTO_N_SIMPLE_THRESHOLD"
+    DEFAULT = "DEFAULT"
 
 
 def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
@@ -38,6 +39,8 @@ def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
         return auto_n_binned_with_threshold
     elif heuristic_name == NColorsHeuristic.AUTO_N_SIMPLE_THRESHOLD:
         return auto_n_simple_threshold
+    elif heuristic_name == NColorsHeuristic.DEFAULT:
+        return auto_n_binned_with_threshold
     else:
         raise ValueError(f"Invalid heuristic selected: {heuristic_name}")
 

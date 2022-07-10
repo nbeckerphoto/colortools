@@ -67,11 +67,9 @@ class AnalyzedImage:
 
         # set n, if not provided
         if n_colors is None or n_colors == 0:
-            if self.dominant_color_algorithm == util.DominantColorAlgorithm.HUE_DIST:
-                self.n_colors = 1
+            if auto_n_heuristic is None:
+                raise ValueError("Must provide either n_colors (>0) or auto_n_heuristic.")
             else:
-                if auto_n_heuristic is None:
-                    raise ValueError("Must provide either n_colors (>0) or auto_n_heuristic.")
                 auto_n_heuristic_func = get_n_heuristic(auto_n_heuristic)
                 self.n_colors = auto_n_heuristic_func(self.get_as_array(hsv=True))
         else:
