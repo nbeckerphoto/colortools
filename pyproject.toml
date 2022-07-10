@@ -5,3 +5,7 @@ line-length = 119
 pythonpath = [
   "."
 ]
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools", "wheel"]

@@ -1,9 +1,11 @@
-.DS_Store
+*.egg-info
 *.jpg
 *.png
-__pycache__/
+.coverage
 .deprecated/
+.DS_Store
 .pytest_cache/
+__pycache__/
+dist/
 scripts/
 venv/
-.coverage
