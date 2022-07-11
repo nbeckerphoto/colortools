@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 
 from tqdm import tqdm
+from colortools import __version__
 
 import colortools.config as config
 import colortools.util as util
@@ -23,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description="ColorTools")
     parser.add_argument("input", type=Path, help="Input directory of .jpg files (or a single .jpg file).")
+    parser.add_argument("--version", action="version", version=__version__)
     parser.add_argument(
         "--algorithm",
         "-a",
