@@ -2,13 +2,20 @@
 
 A commandline tool for sorting images by their dominant color.
 
+## Installation
+Installation is simple using `pip`: 
+
+```
+$ pip install colortools
+```
+
 ## Usage
 ```
-$ python cli.py --help
-usage: cli.py [-h] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--n_colors_heuristic N_COLORS_HEURISTIC] [--exclude_bw] [--skip_sort] [--sort_reverse]
-              [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose] [--output_dir OUTPUT_DIR] [--dominant_colors] [--dominant_colors_remapped] [--spectrum]
-              [--spectrum_all_colors] [--collage] [--summary]
-              input
+$ colortools --help
+usage: colortools [-h] [--version] [--algorithm ALGORITHM] [--n_colors N_COLORS] [--n_colors_heuristic N_COLORS_HEURISTIC] [--exclude_bw] [--skip_sort] [--sort_reverse]
+                  [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose] [--output_dir OUTPUT_DIR] [--dominant_colors] [--dominant_colors_remapped] [--spectrum]
+                  [--spectrum_all_colors] [--collage] [--summary]
+                  input
 
 ColorTools
 
@@ -17,6 +24,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version             show program's version number and exit
   --algorithm ALGORITHM, -a ALGORITHM
                         The algorithm to use for determining the dominant color of images (k-means clustering by default).
   --n_colors N_COLORS, -n N_COLORS
@@ -50,12 +58,3 @@ optional arguments:
 $ coverage run -m pytest tests && coverage html && open htmlcov/index.html 
 ```
 
-### v1.0.0 TODO
-- Installable via `pip`
-- ~~Better argument checking/setting in CLI.~~
-- ~~Clean up CLI options.~~
-- ~~\>=90% test coverage~~
-- ~~Image collage generation~~
-- ~~Ensure that spectrum generation works with \>1 color per bar.~~
-- ~~Ensure exact decimals are stored for dominant colors, and only cast to ints when needed~~
-- ~~Git hooks for black and flake8~~
