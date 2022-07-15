@@ -32,11 +32,24 @@ class DominantColorAlgorithm(Enum):
 
 # general operations
 # --------------------------------------------------------------------------------
-def get_timestamp_string():
+def get_timestamp_string() -> str:
+    """Return a timestamp string.
+
+    Returns:
+        str: A string representation of a newly-constructed datetime object.
+    """
     return datetime.now().strftime("%Y%m%d%H%M%S")
 
 
-def collect_jpg_paths(input_dir):
+def collect_jpg_paths(input_dir: Union[Path, str]) -> List[Path]:
+    """Find all .jpg images in the provided directory.
+
+    Args:
+        input_dir (Union[Path, str]): A folder containing .jpg files, or a single .jpg file.
+
+    Returns:
+        List[Path]: A list of .jpg files.
+    """
     if not isinstance(input_dir, Path):
         input_dir = Path(input_dir)
 
