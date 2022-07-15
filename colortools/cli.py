@@ -77,6 +77,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--verbose", action="store_true", help="print a summary of the supplied arguments")
     parser.add_argument(
         "--output_dir",
+        "--output-dir",
         type=Path,
         default=Path(config.DEFAULT_OUTPUT_DIR),
         help="Output directory for sorted .jpg files.",
@@ -126,9 +127,10 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
     if args.exclude_bw and args.exclude_color:
         logging.error("Cannot set both --exclude_bw and --exclude_color")
         return None
-    if not (args.sort or args.save_sorted or args.dominant_colors or args.spectrum or args.collage):
+    if not (args.summary or args.sort or args.save_sorted or args.dominant_colors or args.spectrum or args.collage):
         logging.error(
-            "No output action selected; please select --sort, --save_sorted, --dominant_colors, or --spectrum"
+            "No output action selected; please select "
+            "--summary, --sort, --save_sorted, --dominant_colors, or --spectrum"
         )
         return None
     return args

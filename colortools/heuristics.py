@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Callable
+from typing import Callable, Dict
 
 import numpy as np
 
@@ -45,7 +45,22 @@ def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
         raise ValueError(f"Invalid heuristic selected: {heuristic_name}")
 
 
-def compute_hue_dist(image_hsv, n_bins=PIL_NUM_HUES, hue_counts_only=False):
+def compute_hue_dist(image_hsv: np.array, n_bins: int = PIL_NUM_HUES, hue_counts_only: bool = False) -> Dict:
+    """Compute the distribution of hues for the provided image.
+
+    Args:
+        image_hsv (np.array): The image for which to generate a hue distribution.
+        n_bins (int, optional): The number of bins to use for the distribution. Defaults to PIL_NUM_HUES.
+        hue_counts_only (bool, optional): Whether to return lists of pixel representations in the returned
+            distribution, or the lengths of those lists. Defaults to False.
+
+    Raises:
+        ValueError: If an invalid hue is encountered.
+
+    Returns:
+        Dict: A distribution of hues represented by a dictionary, where keys are discrete hue values and values
+            are either lists of pixel representations or the lengths of those lists.
+    """
     flattened_hsv = image_hsv.reshape((image_hsv.shape[0] * image_hsv.shape[1], 3))
     n_bins = min(n_bins, PIL_NUM_HUES)
 
@@ -67,7 +82,7 @@ def auto_n_hue(image_hsv: np.array) -> int:
 
     This heuristic determines `n` using the following steps:
     - determine the number of discrete hues that are present in the provided image
-    - determine the percentage of hues (out of 180) represented in the provided image
+    - determine the percentage of hues represented in the provided image
     - multiply the percentage of hues that are represented by 6
     - return the maximum of the computed value and 2
 
