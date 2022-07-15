@@ -114,10 +114,9 @@ class AnalyzedImage:
                 avg_sat = np.median([hsv[1] for hsv in current_hue_list[1]])
                 avg_val = np.median([hsv[2] for hsv in current_hue_list[1]])
             else:
-                if not self.is_bw():
-                    logging.warning(
-                        f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
-                    )
+                logging.warning(
+                    f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
+                )
                 avg_sat, avg_val = 0, 0
             dominant_colors_hsv.append([hue, avg_sat, avg_val])
 
