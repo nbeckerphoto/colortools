@@ -1,16 +1,42 @@
+import logging
 from collections import deque
 from enum import Enum
-from typing import List, Tuple
+from typing import Callable, List, Tuple
 
 from colortools.analyzed_image import AnalyzedImage
-import logging
 
 
 class SortMethod(str, Enum):
     """Enum for image sorting methods."""
 
     COLOR = "color"
+    SATURATION = "saturation"
     VALUE = "value"
+    DEFAULT = "default"
+
+
+def get_sort_function(sort_method: SortMethod) -> Callable:
+    """Get the function that corresponds to a sort method name.
+
+    Args:
+        sort_method (HeuristicName): The name of the sort method function to return.
+
+    Raises:
+        ValueError: Raised if the provided sort method name is not recognized.
+
+    Returns:
+        Callable: The function corresponding to a heuristic name.
+    """
+    if sort_method == SortMethod.COLOR:
+        return colorsort
+    elif sort_method == SortMethod.SATURATION:
+        return satsort
+    elif sort_method == SortMethod.VALUE:
+        return valuesort
+    elif sort_method == SortMethod.DEFAULT:
+        return colorsort
+    else:
+        raise ValueError(f"Invalid sort method selected: {sort_method}")
 
 
 def separate_color_and_bw(analyzed_images: List[AnalyzedImage]) -> Tuple[List[AnalyzedImage], List[AnalyzedImage]]:
@@ -60,13 +86,15 @@ def orient_to_sort_anchor(sorted_analyzed_images: List[AnalyzedImage], sort_anch
     return list(sorted_analyzed_images)
 
 
-def colorsort(analyzed_images: List[AnalyzedImage], sort_anchor: str) -> List[AnalyzedImage]:
+def colorsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
     """Static method for sorting a collection of analyzed images by their hue.
 
-    Uses the AnalyzedImage.get_sort_metric() function for sorting color images.
+    Sort by color (using the AnalyzedImage.get_colorsort_metric()), then by value. All black and
+    white images are moved to the end of the sequence.
 
     Args:
         analyzed_images (List[AnalyzedImage]): A list of analyzed images.
+        sort_reverse (bool):
         sort_anchor (str): The anchor image with whih to begin the returned sorted sequence.
 
     Returns:
@@ -79,13 +107,14 @@ def colorsort(analyzed_images: List[AnalyzedImage], sort_anchor: str) -> List[An
     # sort color images by built-in sort metric, then value
     color.sort(
         key=lambda elem: (
-            elem.get_sort_metric(),
+            elem.get_colorsort_metric(),
             elem.get_dominant_color(hsv=True)[2],
-        )
+        ),
+        reverse=sort_reverse,
     )
 
     # sort black and white images by value
-    bw.sort(key=lambda elem: elem.get_dominant_color(hsv=True)[2])
+    bw.sort(key=lambda elem: elem.get_dominant_color(hsv=True)[2], reverse=sort_reverse)
 
     color = orient_to_sort_anchor(color, sort_anchor)
     combined = []
@@ -94,18 +123,42 @@ def colorsort(analyzed_images: List[AnalyzedImage], sort_anchor: str) -> List[An
     return combined
 
 
-def valuesort(analyzed_images: List[AnalyzedImage], sort_anchor: str) -> List[AnalyzedImage]:
-    """Static method for sorting a collection of analyzed images by their value.
+def satsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
+    """Static method for sorting a collection of analyzed images by their saturation.
+
+    Sort by saturation (high to low), then by value.
 
     Args:
         analyzed_images (List[AnalyzedImage]): A list of analyzed images.
+        sort_reverse (bool):
+        sort_anchor (str): The anchor image with whih to begin the returned sorted sequence.
+
+    Returns:
+        List[AnalyzedImage]: Sorted results, where all images are sorted by the saturation of
+            their domiant color.
+    """
+    analyzed_images.sort(
+        key=lambda elem: (elem.get_dominant_color(hsv=True)[1], elem.get_dominant_color(hsv=True)[2]),
+        reverse=sort_reverse,
+    )
+    return orient_to_sort_anchor(analyzed_images, sort_anchor)
+
+
+def valuesort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
+    """Static method for sorting a collection of analyzed images by their value.
+
+    Sort by value (low to high), then by color.
+
+    Args:
+        analyzed_images (List[AnalyzedImage]): A list of analyzed images.
+        sort_reverse (bool):
         sort_anchor (str): The anchor image with whih to begin the returned sorted sequence.
 
     Returns:
         List[AnalyzedImage]: Sorted results, where all images are sorted by the value of
             their domiant color.
     """
-
-    # sort color images by built-in sort metric, then value
-    analyzed_images.sort(key=lambda elem: (elem.get_dominant_color(hsv=True)[2], elem.get_sort_metric()))
-    return orient_to_sort_anchor(orient_to_sort_anchor(analyzed_images, sort_anchor))
+    analyzed_images.sort(
+        key=lambda elem: (elem.get_dominant_color(hsv=True)[2], elem.get_colorsort_metric()), reverse=sort_reverse
+    )
+    return orient_to_sort_anchor(analyzed_images, sort_anchor)

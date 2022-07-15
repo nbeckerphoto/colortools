@@ -6,12 +6,12 @@ from pathlib import Path
 from tqdm import tqdm
 
 import colortools.config as config
+import colortools.sort as sort
 import colortools.util as util
 import colortools.visualization as visualization
 from colortools import __version__
 from colortools.analyzed_image import AnalyzedImage
 from colortools.heuristics import NColorsHeuristic
-from colortools.sort import SortMethod, colorsort, separate_color_and_bw, valuesort
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 
@@ -34,12 +34,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--n_colors",
+        "--n-colors",
         type=int,
         default=config.DEFAULT_N_COLORS,
         help="number of dominant colors to compute",
     )
     parser.add_argument(
         "--n_colors_heuristic",
+        "--n-colors-heuristic",
         type=NColorsHeuristic,
         choices=[nch.value for nch in NColorsHeuristic],
         default=config.DEFAULT_N_COLORS_HEURISTIC,
@@ -47,24 +49,26 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--exclude_bw",
+        "--exclude-bw",
         action="store_true",
         help="exclude black and white images from generated graphics",
     )
     parser.add_argument(
         "--exclude_color",
+        "--exclude-color",
         action="store_true",
         help="exclude color images from generated graphics",
     )
     parser.add_argument(
-        "--sort", type=SortMethod, choices=[sm.value for sm in SortMethod], default=None, help="sort images"
+        "--sort", type=sort.SortMethod, choices=[sm.value for sm in sort.SortMethod], default=None, help="sort images"
     )
-    parser.add_argument("--sort_reverse", action="store_true", help="reverse the image sort order")
+    parser.add_argument("--sort_reverse", "--sort-reverse", action="store_true", help="reverse the image sort order")
     parser.add_argument(
         "--sort_anchor",
         type=str,
         help="anchor image with which to begin sorted sequence",
     )
-    parser.add_argument("--save_sorted", action="store_true", help="save sorted sequence of images")
+    parser.add_argument("--save_sorted", "--save-sorted", action="store_true", help="save sorted sequence of images")
     parser.add_argument(
         "--display",
         action="store_true",
@@ -79,11 +83,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dominant_colors",
+        "--dominant-colors",
         action="store_true",
         help="save dominant color visualization for each image",
     )
     parser.add_argument(
         "--dominant_colors_remapped",
+        "--dominant-colors-remapped",
         action="store_true",
         help="include remapped image in dominant color visualization; ignored if not using kmeans algorithm",
     )
@@ -94,6 +100,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--spectrum_all_colors",
+        "--spectrum-all-colors",
         action="store_true",
         help="include all detected dominant colors in the spectrum graphic",
     )
@@ -156,7 +163,7 @@ def print_verbose_output(args: argparse.Namespace):
     else:
         print("- Images will not be sorted")
 
-    if args.dominant_colors:
+    if args.dominant_colors or args.dominant_colors_remapped:
         dominant_colors_dir = f"{args.output_dir}/{config.DEFAULT_DOMINANT_COLOR_DIR}"
         print(
             "- Saving dominant colors graphic "
@@ -209,17 +216,13 @@ def run():
                 )
 
             if args.exclude_bw:
-                analyzed_images, _ = separate_color_and_bw(analyzed_images)
+                analyzed_images, _ = sort.separate_color_and_bw(analyzed_images)
             if args.exclude_color:
-                _, analyzed_image = separate_color_and_bw(analyzed_images)
+                _, analyzed_image = sort.separate_color_and_bw(analyzed_images)
 
             if args.sort:
-                if args.sort == SortMethod.COLOR:
-                    analyzed_images = colorsort(analyzed_images, args.sort_anchor)
-                elif args.sort == SortMethod.VALUE:
-                    analyzed_images = valuesort(analyzed_images, args.sort_anchor)
-                else:
-                    logging.error(f"Invalid sorting method {args.sort} (how did we get here?)")
+                sort_function = sort.get_sort_function(args.sort)
+                analyzed_images = sort_function(analyzed_images, args.sort_reverse, args.sort_anchor)
                 n_sorted = len(analyzed_images)
 
                 if args.save_sorted:
