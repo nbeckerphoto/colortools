@@ -114,7 +114,7 @@ class AnalyzedImage:
                 avg_sat = np.median([hsv[1] for hsv in current_hue_list[1]])
                 avg_val = np.median([hsv[2] for hsv in current_hue_list[1]])
             else:
-                if not self.is_bw:
+                if not self.is_bw():
                     logging.warning(
                         f"No pixels found for hue value {hue}; n_colors may be larger than number of hues in image."
                     )
@@ -196,7 +196,7 @@ class AnalyzedImage:
         Returns:
             bool: Whether this image is black and white or not.
         """
-        return self.get_dominant_color(hsv=True)[1] == 0
+        return self.get_dominant_color(hsv=True)[1] < 1
 
     def get_remapped_image(self, other: "AnalyzedImage" = None) -> Union[Image.Image, None]:
         """Use the model created for this image to predict mapped colors for another image (or this image itself).
