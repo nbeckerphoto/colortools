@@ -1,6 +1,6 @@
-from colortools.util import DominantColorAlgorithm
 from colortools.heuristics import NColorsHeuristic
-
+from colortools.sort import SortMethod
+from colortools.util import DominantColorAlgorithm
 
 DEFAULT_BAR_HEIGHT = 500
 DEFAULT_BAR_WIDTH = 100
@@ -15,5 +15,6 @@ DEFAULT_N_COLORS = None
 DEFAULT_N_COLORS_HEURISTIC = NColorsHeuristic.DEFAULT
 DEFAULT_OUTPUT_DIR = "output"
 DEFAULT_RESIZE_LONG_AXIS = 400
+DEFAULT_SORT_METHDO = SortMethod.COLOR
 DEFAULT_SORTED_DIR = "sorted"
 DEFAULT_SPECTRUM_DIR = "spectrums"

@@ -26,8 +26,8 @@ class ImageOrientation(Enum):
 class DominantColorAlgorithm(Enum):
     """Enum for dominant color algorithms."""
 
-    HUE_DIST = "HUE_DIST"
-    KMEANS = "KMEANS"
+    HUE_DIST = "hue_dist"
+    KMEANS = "kmeans"
 
 
 # general operations

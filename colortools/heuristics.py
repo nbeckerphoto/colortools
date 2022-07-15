@@ -12,11 +12,11 @@ MAX_N = 8
 class NColorsHeuristic(str, Enum):
     """Enum type for heuristic names."""
 
-    AUTO_N_HUE = "AUTO_N_HUE"
-    AUTO_N_HUE_BINNED = "AUTO_N_HUE_BINNED"
-    AUTO_N_BINNED_WITH_THRESHOLD = "AUTO_N_BINNED_WITH_THRESHOLD"
-    AUTO_N_SIMPLE_THRESHOLD = "AUTO_N_SIMPLE_THRESHOLD"
-    DEFAULT = "DEFAULT"
+    AUTO_N_HUE = "auto_n_hue"
+    AUTO_N_HUE_BINNED = "auto_n_hue_binned"
+    AUTO_N_BINNED_WITH_THRESHOLD = "auto_n_binned_with_threshold"
+    AUTO_N_SIMPLE_THRESHOLD = "auto_n_simple_threshold"
+    DEFAULT = "default"
 
 
 def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
