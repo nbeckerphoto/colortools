@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
 import logging
+import sys
 from pathlib import Path
+from typing import List
 
 from tqdm import tqdm
 
@@ -15,9 +17,14 @@ from colortools.heuristics import NColorsHeuristic
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 
+# TODO tests
 
-def parse_args() -> argparse.Namespace:
+
+def parse_args(args: List[str]) -> argparse.Namespace:
     """Parse commandline arguments.
+
+    Arguments:
+        args (List[str]): The list of arguments for this run of ColorTools.
 
     Returns:
         argparse.Namespace: The arguments parsed from the commandline interface.
@@ -107,7 +114,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--collage", action="store_true", help="save a collage of the analyzed images")
     parser.add_argument("--summary", action="store_true", help="print a summary of the analyzed images to the console")
-    return parser.parse_args()
+    return parser.parse_args(args)
 
 
 def check_args(args: argparse.Namespace) -> argparse.Namespace:
@@ -192,7 +199,7 @@ def print_verbose_output(args: argparse.Namespace):
 
 
 def run():
-    args = check_args(parse_args())
+    args = check_args(parse_args(sys.argv[1:]))
     if args:
         timstamp_str = util.get_timestamp_string()
         jpg_paths = util.collect_jpg_paths(args.input)

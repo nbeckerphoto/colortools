@@ -13,8 +13,7 @@ from colortools.util import ImageOrientation, round_array, round_to_int
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 
-# TODO: write tests for these functions
-# TODO: remove dependency on config file; all parameters should be passed in
+# TODO tests
 
 
 def save(image: Union[AnalyzedImage, Image.Image, np.array], dest_path: Union[Path, str]):
