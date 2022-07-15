@@ -76,7 +76,8 @@ def normalize_8bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[Lis
     Standard HSV space: hue [0..360], sat [0..100], val [0..100].
 
     Args:
-        hsv_list (Union[List[int], List[List[int]]]): A single HSV array, or a list of them.
+        hsv_list (Union[List[int], List[List[int]]]): A single HSV array specified in 8-bit values, or a list
+        of them.
 
     Returns:
         Union[List[int], List[List[int]]]: The normalized HSV array, or a list of them.

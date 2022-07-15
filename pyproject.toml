@@ -9,3 +9,8 @@ pythonpath = [
 [build-system]
 build-backend = "setuptools.build_meta"
 requires = ["setuptools", "wheel"]
+
+[tool.coverage.run]
+omit = [
+  "tests/*"
+]

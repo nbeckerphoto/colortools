@@ -32,7 +32,7 @@ def get_sort_function(sort_method: SortMethod) -> Callable:
     elif sort_method == SortMethod.SATURATION:
         return satsort
     elif sort_method == SortMethod.VALUE:
-        return valuesort
+        return valsort
     elif sort_method == SortMethod.DEFAULT:
         return colorsort
     else:
@@ -89,12 +89,12 @@ def orient_to_sort_anchor(sorted_analyzed_images: List[AnalyzedImage], sort_anch
 def colorsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
     """Static method for sorting a collection of analyzed images by their hue.
 
-    Sort by color (using the AnalyzedImage.get_colorsort_metric()), then by value. All black and
-    white images are moved to the end of the sequence.
+    Sort by color (using the AnalyzedImage.get_colorsort_metric()), then by value, then by saturation. All
+    black and white images are moved to the end of the sequence.
 
     Args:
         analyzed_images (List[AnalyzedImage]): A list of analyzed images.
-        sort_reverse (bool):
+        sort_reverse (bool): Whether to reverse the sort order.
         sort_anchor (str): The anchor image with whih to begin the returned sorted sequence.
 
     Returns:
@@ -108,29 +108,30 @@ def colorsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anc
     color.sort(
         key=lambda elem: (
             elem.get_colorsort_metric(),
-            elem.get_dominant_color(hsv=True)[2],
+            elem.get_dominant_color(hsv=True, round=True)[2],
+            elem.get_dominant_color(hsv=True, round=True)[1],
         ),
         reverse=sort_reverse,
     )
 
     # sort black and white images by value
-    bw.sort(key=lambda elem: elem.get_dominant_color(hsv=True)[2], reverse=sort_reverse)
+    bw.sort(key=lambda elem: elem.get_dominant_color(hsv=True, round=True)[2], reverse=sort_reverse)
 
     color = orient_to_sort_anchor(color, sort_anchor)
     combined = []
     combined.extend(color)
-    combined.extend(bw)
+    combined.extend(bw)  # bw always at end
     return combined
 
 
 def satsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
     """Static method for sorting a collection of analyzed images by their saturation.
 
-    Sort by saturation (high to low), then by value.
+    Sort by saturation (high to low), then by value, then hue.
 
     Args:
         analyzed_images (List[AnalyzedImage]): A list of analyzed images.
-        sort_reverse (bool):
+        sort_reverse (bool): Whether to reverse the sort order.
         sort_anchor (str): The anchor image with whih to begin the returned sorted sequence.
 
     Returns:
@@ -138,20 +139,24 @@ def satsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_ancho
             their domiant color.
     """
     analyzed_images.sort(
-        key=lambda elem: (elem.get_dominant_color(hsv=True)[1], elem.get_dominant_color(hsv=True)[2]),
+        key=lambda elem: (
+            elem.get_dominant_color(hsv=True, round=True)[1],
+            elem.get_dominant_color(hsv=True, round=True)[2],
+            elem.get_colorsort_metric(),
+        ),
         reverse=sort_reverse,
     )
     return orient_to_sort_anchor(analyzed_images, sort_anchor)
 
 
-def valuesort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
+def valsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
     """Static method for sorting a collection of analyzed images by their value.
 
-    Sort by value (low to high), then by color.
+    Sort by value (low to high), then by color, then by saturation.
 
     Args:
         analyzed_images (List[AnalyzedImage]): A list of analyzed images.
-        sort_reverse (bool):
+        sort_reverse (bool): Whether to reverse the sort order.
         sort_anchor (str): The anchor image with whih to begin the returned sorted sequence.
 
     Returns:
@@ -159,6 +164,11 @@ def valuesort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anc
             their domiant color.
     """
     analyzed_images.sort(
-        key=lambda elem: (elem.get_dominant_color(hsv=True)[2], elem.get_colorsort_metric()), reverse=sort_reverse
+        key=lambda elem: (
+            elem.get_dominant_color(hsv=True, round=True)[2],
+            elem.get_colorsort_metric(),
+            elem.get_dominant_color(hsv=True, round=True)[1],
+        ),
+        reverse=sort_reverse,
     )
     return orient_to_sort_anchor(analyzed_images, sort_anchor)

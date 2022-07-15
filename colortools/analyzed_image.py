@@ -153,7 +153,7 @@ class AnalyzedImage:
         else:
             return np.asarray(self.pil_image)
 
-    def get_dominant_colors(self, hsv=False) -> List[List]:
+    def get_dominant_colors(self, hsv=False, round=False) -> List[List]:
         """Get the dominant colors that were computed for this image.
 
         Args:
@@ -162,12 +162,14 @@ class AnalyzedImage:
         Returns:
             List[List]: A list of the dominant colors for this image.
         """
+        dom_colors = self.dominant_colors_hsv if hsv else self.dominant_colors_rgb
+        dom_colors = util.round_array(dom_colors) if round else dom_colors
         if hsv:
-            return self.dominant_colors_hsv
-        else:
-            return self.dominant_colors_rgb
+            for dc in dom_colors:
+                dc[0] = dc[0] % 360  # hue space fix
+        return dom_colors
 
-    def get_dominant_color(self, hsv=False) -> List:
+    def get_dominant_color(self, hsv=False, round=False) -> List:
         """Get the single most dominant color for this image.
 
         Args:
@@ -176,7 +178,7 @@ class AnalyzedImage:
         Returns:
             List: _description_
         """
-        return self.get_dominant_colors(hsv)[0]
+        return self.get_dominant_colors(hsv, round)[0]
 
     def get_orientation(self) -> util.ImageOrientation:
         """Get the orientation of this image.
@@ -264,7 +266,8 @@ class AnalyzedImage:
 
         Currently, this method returns the dominant color's hue, shifted by -90 degrees so that colors in the
         red region of the spectrum come before colors in the blue region of the spectrum. (If not shifted, some
-        reds appear at the beginning of the sort order, while some reds appear at the end of the sort order.)
+        reds may appear at the beginning of the sort order, while some reds might appear at the end of the sort
+        order.)
 
         Returns:
             int: A value to use when sorting this image.

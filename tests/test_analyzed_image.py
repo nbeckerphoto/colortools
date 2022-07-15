@@ -4,16 +4,15 @@ from colortools.analyzed_image import AnalyzedImage
 from colortools.heuristics import NColorsHeuristic
 from colortools.util import DominantColorAlgorithm, ImageOrientation, hsv_to_rgb, rgb_to_hsv
 
-from conftest import ARRAY_TOLERANCE, get_image_path
+from conftest import ARRAY_TOLERANCE
 
-AUTO_N_HEURISTICS = [
-    NColorsHeuristic.AUTO_N_HUE,
-    NColorsHeuristic.AUTO_N_HUE_BINNED,
-    NColorsHeuristic.AUTO_N_BINNED_WITH_THRESHOLD,
-    NColorsHeuristic.AUTO_N_SIMPLE_THRESHOLD,
-]
+AUTO_N_HEURISTICS = [nch for nch in NColorsHeuristic]
+DOMINANT_COLOR_ALGORITHMS = [dca for dca in DominantColorAlgorithm]
+TEST_IMAGE_DIR = "tests/test_images/test_analyzed_image"
 
-DOMINANT_COLOR_ALGORITHMS = [DominantColorAlgorithm.HUE_DIST, DominantColorAlgorithm.KMEANS]
+
+def get_image_path(dimensions, color_name):
+    return f"{TEST_IMAGE_DIR}/{dimensions[0]}-by-{dimensions[1]}-{color_name}.jpg"
 
 
 @pytest.mark.parametrize(
@@ -59,7 +58,7 @@ def test_analyzed_image_orientation(test_dimensions, resize_long_axis, target_or
 @pytest.mark.parametrize("dominant_color_algorithm", DOMINANT_COLOR_ALGORITHMS)
 @pytest.mark.parametrize("auto_n_heuristic", AUTO_N_HEURISTICS)
 def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
-    image_path = "tests/test_images/red-blue.jpg"
+    image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     analyzed_image = AnalyzedImage(image_path, None, dominant_color_algorithm, None, auto_n_heuristic)
     dominant_colors_rgb = analyzed_image.get_dominant_colors()
     dominant_colors_hsv = analyzed_image.get_dominant_colors(hsv=True)
@@ -73,14 +72,14 @@ def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
 
 @pytest.mark.parametrize("dominant_color_algorithm", DOMINANT_COLOR_ALGORITHMS)
 def test_initialization_error_n_colors_n_heuristic(dominant_color_algorithm):
-    image_path = "tests/test_images/red-blue.jpg"
+    image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     with pytest.raises(ValueError):
         _ = AnalyzedImage(image_path, None, dominant_color_algorithm, None, None)
 
 
 @pytest.mark.parametrize("n_colors", [0, None, 1])
 def test_initialization_hue_dist_default_n_heuristic(n_colors):
-    image_path = "tests/test_images/red-blue.jpg"
+    image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     analyzed_image = AnalyzedImage(
         image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, NColorsHeuristic.DEFAULT
     )
@@ -88,7 +87,7 @@ def test_initialization_hue_dist_default_n_heuristic(n_colors):
 
 
 def test_initialization_error_bad_algorithm():
-    image_path = "tests/test_images/red-blue.jpg"
+    image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     with pytest.raises(ValueError):
         _ = AnalyzedImage(image_path, None, "FAKE_ALGORITHM", 5, None)
 
@@ -107,7 +106,7 @@ def test_is_bw(test_color, target_is_bw):
 @pytest.mark.parametrize("base", [1, "a"])
 @pytest.mark.parametrize("n_colors", [1, 2, 100])
 def test_generate_filename(n_colors, index, base):
-    image_path = "tests/test_images/red-blue.jpg"
+    image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     analyzed_image = AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, None)
     test_filename = analyzed_image.generate_filename(index, base)
     if index is not None:
