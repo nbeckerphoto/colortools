@@ -6,7 +6,34 @@ from colortools.util import DominantColorAlgorithm
 from conftest import get_image_path
 
 
-def test_colorsort():
+@pytest.mark.parametrize(
+    "sort_reverse,target_results",
+    [
+        (
+            False,
+            [
+                "100-by-100-red.jpg",
+                "100-by-100-green.jpg",
+                "100-by-100-blue.jpg",
+                "100-by-100-black.jpg",
+                "100-by-100-gray.jpg",
+                "100-by-100-white.jpg",
+            ],
+        ),
+        (
+            True,
+            [
+                "100-by-100-blue.jpg",
+                "100-by-100-green.jpg",
+                "100-by-100-red.jpg",
+                "100-by-100-white.jpg",
+                "100-by-100-gray.jpg",
+                "100-by-100-black.jpg",
+            ],
+        ),
+    ],
+)
+def test_colorsort(sort_reverse, target_results):
     dims = (100, 100)
     colors = ["black", "blue", "gray", "green", "red", "white"]
     image_paths = [get_image_path(dims, color) for color in colors]
@@ -14,16 +41,9 @@ def test_colorsort():
         AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, 1, None) for image_path in image_paths
     ]
 
-    sorted_all = colorsort(analyzed_images, None)
+    sorted_all = colorsort(analyzed_images, sort_reverse, None)
     sorted_all_filenames = [image.image_path.name for image in sorted_all]
-    assert sorted_all_filenames == [
-        "100-by-100-red.jpg",
-        "100-by-100-green.jpg",
-        "100-by-100-blue.jpg",
-        "100-by-100-black.jpg",
-        "100-by-100-gray.jpg",
-        "100-by-100-white.jpg",
-    ]
+    assert sorted_all_filenames == target_results
 
 
 @pytest.mark.parametrize(
@@ -43,7 +63,7 @@ def test_colorsort_with_anchor(anchor_image, target_color):
         AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, 1, None) for image_path in image_paths
     ]
 
-    sorted_all = colorsort(analyzed_images, anchor_image)
+    sorted_all = colorsort(analyzed_images, False, anchor_image)
 
     target_bw = [
         "100-by-100-black.jpg",
