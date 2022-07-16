@@ -127,7 +127,7 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
         argparse.Namespace: The checked arguments.
     """
     if args.save_sorted and not args.sort:
-        args.sort = config.DEFAULT_SORT_METHDO
+        args.sort = config.DEFAULT_SORT_METHOD
     if not args.algorithm == util.DominantColorAlgorithm.KMEANS and args.dominant_colors_remapped:
         logging.warning("Unable to remap image using hue_dist algorithm; ignoring --dominant_colors_remapped")
         args.dominant_colors_remapped = False
