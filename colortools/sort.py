@@ -9,7 +9,7 @@ from colortools.analyzed_image import AnalyzedImage
 class SortMethod(str, Enum):
     """Enum for image sorting methods."""
 
-    COLOR = "color"
+    HUE = "hue"
     SATURATION = "saturation"
     VALUE = "value"
 
@@ -26,8 +26,8 @@ def get_sort_function(sort_method: SortMethod) -> Callable:
     Returns:
         Callable: The function corresponding to a heuristic name.
     """
-    if sort_method == SortMethod.COLOR:
-        return colorsort
+    if sort_method == SortMethod.HUE:
+        return huesort
     elif sort_method == SortMethod.SATURATION:
         return satsort
     elif sort_method == SortMethod.VALUE:
@@ -83,10 +83,10 @@ def orient_to_sort_anchor(sorted_analyzed_images: List[AnalyzedImage], sort_anch
     return list(sorted_analyzed_images)
 
 
-def colorsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
+def huesort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anchor: str) -> List[AnalyzedImage]:
     """Static method for sorting a collection of analyzed images by their hue.
 
-    Sort by color (using the AnalyzedImage.get_colorsort_metric()), then by value, then by saturation. All
+    Sort by color (using the AnalyzedImage.get_huesort_metric()), then by value, then by saturation. All
     black and white images are moved to the end of the sequence.
 
     Args:
@@ -104,7 +104,7 @@ def colorsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_anc
     # sort color images by built-in sort metric, then value
     color.sort(
         key=lambda elem: (
-            elem.get_colorsort_metric(),
+            elem.get_huesort_metric(),
             elem.get_dominant_color(hsv=True, round=True)[2],
             elem.get_dominant_color(hsv=True, round=True)[1],
         ),
@@ -139,7 +139,7 @@ def satsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_ancho
         key=lambda elem: (
             elem.get_dominant_color(hsv=True, round=True)[1],
             elem.get_dominant_color(hsv=True, round=True)[2],
-            elem.get_colorsort_metric(),
+            elem.get_huesort_metric(),
         ),
         reverse=sort_reverse,
     )
@@ -163,7 +163,7 @@ def valsort(analyzed_images: List[AnalyzedImage], sort_reverse: bool, sort_ancho
     analyzed_images.sort(
         key=lambda elem: (
             elem.get_dominant_color(hsv=True, round=True)[2],
-            elem.get_colorsort_metric(),
+            elem.get_huesort_metric(),
             elem.get_dominant_color(hsv=True, round=True)[1],
         ),
         reverse=sort_reverse,

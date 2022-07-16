@@ -258,7 +258,7 @@ class AnalyzedImage:
         out += f"    hsv={util.round_array(self.dominant_colors_hsv)}"
         return out
 
-    def get_colorsort_metric(self) -> int:
+    def get_huesort_metric(self) -> int:
         """Get a value to use for sorting.
 
         Currently, this method returns the dominant color's hue, shifted by -90 degrees so that colors in the

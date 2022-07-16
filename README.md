@@ -10,14 +10,13 @@ $ pip install colortools
 ```
 
 ## Usage
-
 For details on how to use `ColorTools`, including many examples, see the included [`ColorTools` Tutorial](docs/colortools-tutorial.md). 
 
 ```
 $ colortools --help
 usage: __main__.py [-h] [--version] [--algorithm {hue_dist,kmeans}] [--n_colors N_COLORS]
                    [--n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}] [--exclude_bw] [--exclude_color]
-                   [--sort {color,saturation,value}] [--sort_reverse] [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose] [--output_dir OUTPUT_DIR]
+                   [--sort {hue,saturation,value}] [--sort_reverse] [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose] [--output_dir OUTPUT_DIR]
                    [--dominant_colors] [--dominant_colors_remapped] [--spectrum] [--spectrum_all_colors] [--collage] [--summary]
                    input
 
@@ -39,7 +38,7 @@ optional arguments:
                         exclude black and white images from generated graphics
   --exclude_color, --exclude-color
                         exclude color images from generated graphics
-  --sort {color,saturation,value}
+  --sort {hue,saturation,value}
                         sort images
   --sort_reverse, --sort-reverse
                         reverse the image sort order
