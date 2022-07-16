@@ -93,10 +93,13 @@ $ colortools input/tutorial --dominant_colors
 
 Sample of resulting graphics: 
 
+<p align="center">
+
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/3/1.jpg" width="250">|<img src="example-images/3/2.jpg" width="250">|<img src="example-images/3/3.jpg" width="250">|
 
+</p>
 
 ### Example 4
 We can do the same thing with a different dominant color algorithm. Here's we'll use the `hue_dist` algorithm. 
@@ -107,9 +110,12 @@ $ colortools input/tutorial --dominant_colors --algorithm hue_dist
 
 Sample of resulting graphics: 
 
+<p align="center">
+
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/4/1.jpg" width="250">|<img src="example-images/4/2.jpg" width="250">|<img src="example-images/4/3.jpg" width="250">|
+</p>
 
 
 ### Example 5
@@ -123,10 +129,13 @@ $ colortools input/tutorial --dominant_colors --algorithm hue_dist --n_colors 1
 
 Sample of resulting graphics: 
 
+<p align="center">
+
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/5/1.jpg" width="250">|<img src="example-images/5/2.jpg" width="250">|<img src="example-images/5/3.jpg" width="250">|
 
+</p>
 
 ### Example 6
 Without the `--n_colors` argument, the number of colors to find is determined dynamically. It is possible to use a different heuristic for setting the number of colors, but in general, these heuristics are mostly experimental. You can try them out using the `--n_colors-heuristic` argument. 
@@ -137,10 +146,13 @@ $ colortools input/tutorial --dominant_colors --n_colors_heuristic auto_n_hue
 
 Sample of resulting graphics: 
 
+<p align="center">
+
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/6/1.jpg" width="250">|<img src="example-images/6/2.jpg" width="250">|<img src="example-images/6/3.jpg" width="250">|
 
+</p>
 
 ### Example 7
 If using the default `kmeans` algorithm for computing dominant colors, you are able to map each pixel of the original image to the closest dominant color using the `--dominant_colors_remapped` argument. (This argument is ignored if using the `hue_dist` algorithm.)
@@ -149,10 +161,13 @@ If using the default `kmeans` algorithm for computing dominant colors, you are a
 $ colortools input/tutorial --dominant_colors --dominant_colors_remapped
 ```
 
+<p align="center">
+
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/7/1.jpg" width="250">|<img src="example-images/7/2.jpg" width="250">|<img src="example-images/7/3.jpg" width="250">|
 
+</p>
 
 ### Example 8
 In addition to generating graphics for the dominant colors, we can also generate what I call a "spectrum" for the input images. Each bar in the spectrum represents the dominant color of one of the input images. 
@@ -354,9 +369,13 @@ Analyzed image summary:
 
 Selected dominant color graphics with remapping: 
 
+<p align="center">
+
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/4/1.jpg" width="250">|<img src="example-images/4/2.jpg" width="250">|<img src="example-images/4/3.jpg" width="250">|
+
+</p>
 
 Spectrum graphic: 
 
