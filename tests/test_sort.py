@@ -16,7 +16,7 @@ def load_analyzed_images():
 
 @pytest.mark.parametrize(
     "sort_method,expected",
-    [("color", "colorsort"), ("saturation", "satsort"), ("value", "valsort"), ("default", "colorsort")],
+    [("color", "colorsort"), ("saturation", "satsort"), ("value", "valsort")],
 )
 def test_get_sort_function(sort_method, expected):
     func = get_sort_function(sort_method)

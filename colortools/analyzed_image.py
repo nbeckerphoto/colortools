@@ -68,11 +68,8 @@ class AnalyzedImage:
         # set n, if not provided
         if n_colors is None or n_colors == 0:
             if auto_n_heuristic is None:
-                raise ValueError("Must provide either n_colors (>0) or auto_n_heuristic.")
-            elif (
-                auto_n_heuristic == NColorsHeuristic.DEFAULT
-                and self.dominant_color_algorithm == util.DominantColorAlgorithm.HUE_DIST  # noqa
-            ):
+                if not self.dominant_color_algorithm == util.DominantColorAlgorithm.HUE_DIST:
+                    logging.warning("neither n_colors nor auto_n_heuristic was provided; setting n_colors=1")
                 self.n_colors = 1
             else:
                 auto_n_heuristic_func = get_n_heuristic(auto_n_heuristic)

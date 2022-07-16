@@ -12,7 +12,6 @@ class SortMethod(str, Enum):
     COLOR = "color"
     SATURATION = "saturation"
     VALUE = "value"
-    DEFAULT = "default"
 
 
 def get_sort_function(sort_method: SortMethod) -> Callable:
@@ -33,8 +32,6 @@ def get_sort_function(sort_method: SortMethod) -> Callable:
         return satsort
     elif sort_method == SortMethod.VALUE:
         return valsort
-    elif sort_method == SortMethod.DEFAULT:
-        return colorsort
     else:
         raise ValueError(f"Invalid sort method selected: {sort_method}")
 

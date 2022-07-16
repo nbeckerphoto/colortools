@@ -16,7 +16,6 @@ class NColorsHeuristic(str, Enum):
     AUTO_N_HUE_BINNED = "auto_n_hue_binned"
     AUTO_N_BINNED_WITH_THRESHOLD = "auto_n_binned_with_threshold"
     AUTO_N_SIMPLE_THRESHOLD = "auto_n_simple_threshold"
-    DEFAULT = "default"
 
 
 def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
@@ -39,8 +38,6 @@ def get_n_heuristic(heuristic_name: NColorsHeuristic) -> Callable:
         return auto_n_binned_with_threshold
     elif heuristic_name == NColorsHeuristic.AUTO_N_SIMPLE_THRESHOLD:
         return auto_n_simple_threshold
-    elif heuristic_name == NColorsHeuristic.DEFAULT:
-        return auto_n_binned_with_threshold
     else:
         raise ValueError(f"Invalid heuristic selected: {heuristic_name}")
 
@@ -95,7 +92,7 @@ def auto_n_hue(image_hsv: np.array) -> int:
     flattened_hsv = image_hsv.reshape((image_hsv.shape[0] * image_hsv.shape[1], 3))
     n_hues = set([hsv[0] for hsv in flattened_hsv])
     hue_coverage = len(n_hues) / PIL_NUM_HUES
-    n_clusters = max(2, round_to_int(hue_coverage * MAX_N))
+    n_clusters = max(1, round_to_int(hue_coverage * MAX_N))
     return n_clusters
 
 
@@ -141,7 +138,7 @@ def auto_n_binned_with_threshold(image_hsv: np.array, threshold: float = 0.1) ->
     max_hue_count = np.max(list(hue_dist.values()))
     hue_count_threshold = threshold * max_hue_count
     n_clusters = sum([1 for hue_count in list(hue_dist.values()) if hue_count > hue_count_threshold])
-    n_clusters = max(2, n_clusters)
+    n_clusters = max(1, n_clusters)
     return n_clusters
 
 
@@ -167,5 +164,5 @@ def auto_n_simple_threshold(image_hsv: np.array, threshold: float = 0.1) -> int:
     pixel_count = sum(list(hue_dist.values()))
     threhold_hue_count = threshold * pixel_count
     n_clusters = sum([1 for hue_count in list(hue_dist.values()) if hue_count > threhold_hue_count])
-    n_clusters = max(2, n_clusters)
+    n_clusters = max(1, n_clusters)
     return n_clusters

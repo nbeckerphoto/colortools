@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 import pytest
 from colortools.analyzed_image import AnalyzedImage
@@ -70,19 +72,18 @@ def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
         np.testing.assert_allclose(hsv_to_rgb(hsv), rgb, atol=ARRAY_TOLERANCE)
 
 
-@pytest.mark.parametrize("dominant_color_algorithm", DOMINANT_COLOR_ALGORITHMS)
-def test_initialization_error_n_colors_n_heuristic(dominant_color_algorithm):
+def test_initialization_error_n_colors_n_heuristic(caplog):
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
-    with pytest.raises(ValueError):
-        _ = AnalyzedImage(image_path, None, dominant_color_algorithm, None, None)
+    with caplog.at_level(logging.WARNING):
+        _ = AnalyzedImage(image_path, None, DominantColorAlgorithm.KMEANS, None, None)
+
+    assert "setting n_colors=1" in caplog.text
 
 
 @pytest.mark.parametrize("n_colors", [0, None, 1])
 def test_initialization_hue_dist_default_n_heuristic(n_colors):
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
-    analyzed_image = AnalyzedImage(
-        image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, NColorsHeuristic.DEFAULT
-    )
+    analyzed_image = AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, None)
     assert analyzed_image.n_colors == 1
 
 
