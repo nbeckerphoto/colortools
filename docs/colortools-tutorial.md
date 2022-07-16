@@ -93,13 +93,10 @@ $ colortools input/tutorial --dominant_colors
 
 Sample of resulting graphics: 
 
-<p align="center">
-
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/3/1.jpg" width="250">|<img src="example-images/3/2.jpg" width="250">|<img src="example-images/3/3.jpg" width="250">|
 
-</p>
 
 ### Example 4
 We can do the same thing with a different dominant color algorithm. Here's we'll use the `hue_dist` algorithm. 
@@ -110,12 +107,9 @@ $ colortools input/tutorial --dominant_colors --algorithm hue_dist
 
 Sample of resulting graphics: 
 
-<p align="center">
-
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/4/1.jpg" width="250">|<img src="example-images/4/2.jpg" width="250">|<img src="example-images/4/3.jpg" width="250">|
-</p>
 
 
 ### Example 5
@@ -129,13 +123,10 @@ $ colortools input/tutorial --dominant_colors --algorithm hue_dist --n_colors 1
 
 Sample of resulting graphics: 
 
-<p align="center">
-
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/5/1.jpg" width="250">|<img src="example-images/5/2.jpg" width="250">|<img src="example-images/5/3.jpg" width="250">|
 
-</p>
 
 ### Example 6
 Without the `--n_colors` argument, the number of colors to find is determined dynamically. It is possible to use a different heuristic for setting the number of colors, but in general, these heuristics are mostly experimental. You can try them out using the `--n_colors-heuristic` argument. 
@@ -146,13 +137,10 @@ $ colortools input/tutorial --dominant_colors --n_colors_heuristic auto_n_hue
 
 Sample of resulting graphics: 
 
-<p align="center">
-
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/6/1.jpg" width="250">|<img src="example-images/6/2.jpg" width="250">|<img src="example-images/6/3.jpg" width="250">|
 
-</p>
 
 ### Example 7
 If using the default `kmeans` algorithm for computing dominant colors, you are able to map each pixel of the original image to the closest dominant color using the `--dominant_colors_remapped` argument. (This argument is ignored if using the `hue_dist` algorithm.)
@@ -161,13 +149,10 @@ If using the default `kmeans` algorithm for computing dominant colors, you are a
 $ colortools input/tutorial --dominant_colors --dominant_colors_remapped
 ```
 
-<p align="center">
-
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/7/1.jpg" width="250">|<img src="example-images/7/2.jpg" width="250">|<img src="example-images/7/3.jpg" width="250">|
 
-</p>
 
 ### Example 8
 In addition to generating graphics for the dominant colors, we can also generate what I call a "spectrum" for the input images. Each bar in the spectrum represents the dominant color of one of the input images. 
@@ -178,9 +163,7 @@ $ colortools input/tutorial --spectrum
 
 Output graphic: 
 
-<p align="center">
 <img src="example-images/8/1.jpg" width="500">
-</p>
 
 ### Example 9
 Notice that each bar consists of only one color, even though multiple dominant colors were likely computed for each image. If we would like to include all of these colors in the spectrum graphic, we can use the `--spectrum-all-colors` argument. When this argument is used, each bar represents a distribution of dominant colors for the underlying input image. 
@@ -191,9 +174,7 @@ $ colortools input/tutorial --spectrum --spectrum_all_colors
 
 Output graphic: 
 
-<p align="center">
 <img src="example-images/9/1.jpg" width="500">
-</p>
 
 ### Example 10
 You can also generate collages of the input images. 
@@ -204,9 +185,7 @@ $ colortools input/tutorial --collage
 
 Output graphic: 
 
-<p align="center">
 <img src="example-images/10/1.jpg" width="500">
-</p>
 
 
 ### Example 11
@@ -218,11 +197,9 @@ $ colortools input/tutorial --spectrum --collage --sort hue
 
 Output graphics: 
 
-<p align="center">
 <img src="example-images/11/1.jpg" width="500">
-<br>
+
 <img src="example-images/11/2.jpg" width="500">
-</p>
 
 
 ### Example 12
@@ -234,11 +211,9 @@ $ colortools input/tutorial --spectrum --collage --sort hue --sort_reverse
 
 Output graphics: 
 
-<p align="center">
 <img src="example-images/12/1.jpg" width="500">
-<br>
+
 <img src="example-images/12/2.jpg" width="500">
-</p>
 
 Note that black and white images always appear at the end of the sequence when sorting by color.
 
@@ -252,11 +227,9 @@ $ colortools input/tutorial --spectrum --collage --sort saturation
 
 Output graphics: 
 
-<p align="center">
 <img src="example-images/13/1.jpg" width="500">
-<br>
+
 <img src="example-images/13/2.jpg" width="500">
-</p>
 
 
 ### Example 14
@@ -268,11 +241,9 @@ $ colortools input/tutorial --spectrum --collage --sort value
 
 Output graphics: 
 
-<p align="center">
 <img src="example-images/14/1.jpg" width="500">
-<br>
+
 <img src="example-images/14/2.jpg" width="500">
-</p>
 
 
 ### Example 15
@@ -280,9 +251,7 @@ We can set an anchor images when we are sorting. When we do this, sort order is 
 
 In this example, we'll use this image (stored on my machine as `input/11.jpg`) as the anchor image: 
 
-<p align="center">
 <img src="example-images/15/1.jpg" width="300">
-</p>
 
 ```
 $ colortools input/tutorial --spectrum --collage --sort hue --sort_anchor 11.jpg
@@ -290,11 +259,9 @@ $ colortools input/tutorial --spectrum --collage --sort hue --sort_anchor 11.jpg
 
 Output graphics: 
 
-<p align="center">
 <img src="example-images/15/2.jpg" width="500">
-<br>
+
 <img src="example-images/15/3.jpg" width="500">
-</p>
 
 Again, note that when sorting by hue, black and white images always appear at the end of the sorted sequence. 
 
@@ -308,11 +275,9 @@ $ colortools input/tutorial --spectrum --collage --sort hue --sort_anchor 11.jpg
 
 Output graphics: 
 
-<p align="center">
 <img src="example-images/16/1.jpg" width="500">
-<br>
+
 <img src="example-images/16/2.jpg" width="500">
-</p>
 
 
 ### Example 17
@@ -369,24 +334,16 @@ Analyzed image summary:
 
 Selected dominant color graphics with remapping: 
 
-<p align="center">
-
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
 <img src="example-images/4/1.jpg" width="250">|<img src="example-images/4/2.jpg" width="250">|<img src="example-images/4/3.jpg" width="250">|
 
-</p>
-
 Spectrum graphic: 
 
-<p align="center">
 <img src="example-images/17/4.jpg" width="500">
-</p>
 
 Collage graphic: 
 
-<p align="center">
 <img src="example-images/17/5.jpg" width="500">
-</p>
 
 Finally, sorted images are saved to a folder named by the current timestamp in `output/sorted/`. 
