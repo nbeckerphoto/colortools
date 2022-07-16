@@ -428,7 +428,7 @@ def get_histogram_as_bar(
     return concat_vertical(bar_components)
 
 
-def save_image_collage(analyzed_images: List[AnalyzedImage], dest_path: str, display: bool):
+def save_image_collage(analyzed_images: List[AnalyzedImage], width: Union[int, str], dest_path: str, display: bool):
     """Generate a collage of the sorted images.
 
     Tries to keep aspect ratio of generated graphic as square as possible.
@@ -438,11 +438,16 @@ def save_image_collage(analyzed_images: List[AnalyzedImage], dest_path: str, dis
         dest_path (str): The output folder to which to write the generated graphic.
         display (bool): Whether to display the generated graphic.
     """
-    width = int(math.sqrt(len(analyzed_images)))
-    if width**2 == len(analyzed_images):
-        height = width
+    if width == "sqrt":
+        width = int(math.sqrt(len(analyzed_images)))
+        if width**2 == len(analyzed_images):
+            height = width
+        else:
+            width += 1
+            height = len(analyzed_images) / width
+            if (width * height) < len(analyzed_images):
+                height += 1
     else:
-        width += 1
         height = len(analyzed_images) / width
         if (width * height) < len(analyzed_images):
             height += 1

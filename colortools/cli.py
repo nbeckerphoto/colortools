@@ -269,7 +269,9 @@ def run():
             if args.collage:
                 filename = f"{timstamp_str}_collage.jpg"
                 collage_dest = Path(f"{args.output_dir}/{config.DEFAULT_COLLAGE_DIR}/{filename}")
-                visualization.save_image_collage(analyzed_images, collage_dest, args.display)
+                visualization.save_image_collage(
+                    analyzed_images, config.DEFAULT_COLLAGE_WIDTH, collage_dest, args.display
+                )
                 print(f"Saved collage graphic to {collage_dest}")
 
             if args.summary:

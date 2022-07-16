@@ -23,7 +23,7 @@ class ImageOrientation(Enum):
             return ImageOrientation(self.value)
 
 
-class DominantColorAlgorithm(Enum):
+class DominantColorAlgorithm(str, Enum):
     """Enum for dominant color algorithms."""
 
     HUE_DIST = "hue_dist"
