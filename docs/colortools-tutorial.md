@@ -9,7 +9,9 @@ At its core is an image analysis module, which performs color analysis on the pr
 ## Illustrated Examples
 
 ### Example 1 
-The simplest way to use ColorTools is to simply point it to a directory of images and generate a summary of the results.
+The simplest way to use ColorTools is to simply point it to a directory of images and generate a summary of the results. 
+
+For each image, a list of dominant colors is provided in both RGB and HSV. Dominant colors are represented as lists of length 3 (for [R, G, B] or [H, S, V]). 
 
 ```
 $ colortools input/tutorial --summary
@@ -55,8 +57,6 @@ Analyzed image summary:
     rgb=[[1, 58, 162]]
     hsv=[[219, 99, 63]]
 ```
-
-For each image, a list of dominant colors is provided in both RGB and HSV. Dominant colors are represented as lists of length 3 (for [R, G, B] or [H, S, V]). 
 
 
 ### Example 2
@@ -191,6 +191,8 @@ Output graphic:
 ### Example 11
 Collages on their own aren't too interesting, however. We can make them more interesting by sorting the images by their _hue_ before creating the collage. Let's also generate a sorted spectrum graphic while we're at it. 
 
+Note when sorting by hue, black and white images always appear at the end of the sequence.
+
 ```
 $ colortools input/tutorial --spectrum --collage --sort hue
 ```
@@ -214,8 +216,6 @@ Output graphics:
 <img src="example-images/12/1.jpg" width="500">
 
 <img src="example-images/12/2.jpg" width="500">
-
-Note that black and white images always appear at the end of the sequence when sorting by color.
 
 
 ### Example 13
@@ -247,7 +247,7 @@ Output graphics:
 
 
 ### Example 15
-We can set an anchor images when we are sorting. When we do this, sort order is maintained, but the anchor image is used as the first image in the sequence. 
+We can set an image as a sort anchor when we are sorting. When we do this, sort order is maintained, but the anchor image is used as the first image in the sequence.
 
 In this example, we'll use this image (stored on my machine as `input/11.jpg`) as the anchor image: 
 
@@ -263,7 +263,7 @@ Output graphics:
 
 <img src="example-images/15/3.jpg" width="500">
 
-Again, note that when sorting by hue, black and white images always appear at the end of the sorted sequence. 
+Again, note that when sorting by hue, even when using a sort anchor, black and white images will appear at the end of the sorted sequence. 
 
 
 ### Example 16
@@ -283,9 +283,9 @@ Output graphics:
 ### Example 17
 It is also possible to generate all output graphic types with a single command. 
 
-Note that when `--dominant_colors-remapped` is provided, there is no need to also include `--dominant_colors`. 
-
-Note also that when `--sort_saved` is provided, there is no need to provide a value for `--sort`; the default sorting method is by _hue_. 
+Some notes on the input arguments: 
+- When `--dominant_colors-remapped` is provided, there is no need to also include `--dominant_colors`. 
+- When `--sort_saved` is provided, there is no need to provide a value for `--sort`; the default sorting method is by _hue_. 
 
 ```
 $ colortools input/tutorial --summary --dominant_colors_remapped --spectrum --collage --save_sorted
@@ -346,4 +346,4 @@ Collage graphic:
 
 <img src="example-images/17/5.jpg" width="500">
 
-Finally, sorted images are saved to a folder named by the current timestamp in `output/sorted/`. 
+Finally, sorted images are saved to a folder named by the current timestamp in `output/sorted/`.
