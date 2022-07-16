@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Added 
 - Sort functions for sorting by saturation and value. 
 - Many new tests, bringing coverage to 96%. Excluded `tests` folder from `coverage` reports with new entry in `pyproject.toml`.
+- Configurable width in collages.
 - Many additions to documentation: 
     - Missing docstrings
     - `docs/references.md`
@@ -15,9 +16,12 @@ All notable changes to this project will be documented in this file. The format 
 - Set `AnalyzedImage.is_bw()` to return `True` if the saturation of the image's dominant color is less than 1. 
 - Reorganized test image folders. 
 - Minor tweaks to argument and enum option names. 
+- Reduced minimum `n_colors` from auto N heuristics to from 2 to 1.
+- Reverse vertical order of histogram bars in spectrum graphics.
 
 ### Fixed
 - Minor bug that caused errors when instantiating `AnalyzedImage` for low-saturation images. 
+- Enum parsing error for algorithm argument in CLI.
 
 
 ## [1.0.0-beta.1] - 10 Jul 2022

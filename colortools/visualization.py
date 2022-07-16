@@ -420,8 +420,9 @@ def get_histogram_as_bar(
     else:
         color_hist = [(analyzed_image.get_dominant_color(), 1)]
 
+    color_hist.reverse()  # build bottom-up
     bar_components = []
-    for color_rgb, proportion in color_hist:  # build top-down
+    for color_rgb, proportion in color_hist:
         converted = tuple([int(color) for color in color_rgb])
         bar_components.append(Image.new("RGB", (width, round_to_int(proportion * height)), color=converted))
 
