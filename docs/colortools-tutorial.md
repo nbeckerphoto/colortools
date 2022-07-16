@@ -336,7 +336,7 @@ Selected dominant color graphics with remapping:
 
 Image 1 | Image 2 | image 3
 :------:|:-------:|:-------:
-<img src="example-images/4/1.jpg" width="250">|<img src="example-images/4/2.jpg" width="250">|<img src="example-images/4/3.jpg" width="250">|
+<img src="example-images/17/1.jpg" width="250">|<img src="example-images/17/2.jpg" width="250">|<img src="example-images/17/3.jpg" width="250">|
 
 Spectrum graphic: 
 
