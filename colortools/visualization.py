@@ -13,17 +13,19 @@ from colortools.util import ImageOrientation, round_array, round_to_int
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 
+MAX_IMAGE_DIM = 12000
+
 # TODO tests
 
 
-def save(image: Union[AnalyzedImage, Image.Image, np.array], dest_path: Union[Path, str]):
+def save(image: Union[AnalyzedImage, Image.Image, np.ndarray], dest_path: Union[Path, str]):
     """Save the provided image to disk.
 
     If the image is an image representation, create a hard link between the image's original file and
     the provided path to save on disk space.
 
     Args:
-        image (Union[AnalyzedImage, Image, np.array]): The image to save to disk.
+        image (Union[AnalyzedImage, Image, np.ndarray]): The image to save to disk.
         dest_path (Union[Path, str]): The output path to which to save the image.
     """
     if not isinstance(dest_path, Path):
@@ -34,10 +36,11 @@ def save(image: Union[AnalyzedImage, Image.Image, np.array], dest_path: Union[Pa
 
     if isinstance(image, AnalyzedImage):
         os.link(image.image_path, dest_path)
-    elif isinstance(image, Image.Image):
-        image.save(dest_path)
     else:
-        image = Image.fromarray(image)
+        if isinstance(image, np.ndarray):
+            image = Image.fromarray(image)
+        width, height = image.size
+        image = image.resize((min(width, MAX_IMAGE_DIM), min(height, MAX_IMAGE_DIM)))
         image.save(dest_path)
 
 

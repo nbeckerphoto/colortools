@@ -1,10 +1,13 @@
 import colorsys
+import re
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import List, Union
 
 import numpy as np
+
+DIGIT_RE = re.compile(r"(\d+)")
 
 
 # enums
@@ -41,6 +44,39 @@ def get_timestamp_string() -> str:
     return datetime.now().strftime("%Y%m%d%H%M%S")
 
 
+def atoi(text: str) -> Union[int, str]:
+    """ASCII to integer function."
+
+    Args:
+        text (str): Text to convert to integer, if possible.
+
+    Returns:
+        Union[int, str]: The text as an integer, if possible.
+    """
+    return int(text) if text.isdigit() else text
+
+
+def natural_keys(text: str) -> List[str]:
+    """Converts a string to a list of "natural keys."
+
+    `alist.sort(key=natural_keys)` sorts in human order.
+
+    References:
+    - https://stackoverflow.com/a/5967539
+    - http://nedbatchelder.com/blog/200712/human_sorting.html (see Toothy's implementation
+    (in the comments)
+
+    Args:
+        text (str): Text to convert to natural keys
+
+    Returns:
+        List[str]: A list of "natural keys" from the provided string.
+    """
+    if not isinstance(text, str):
+        text = str(text)
+    return [atoi(c) for c in DIGIT_RE.split(text)]
+
+
 def collect_jpg_paths(input_dir: Union[Path, str]) -> List[Path]:
     """Find all .jpg images in the provided directory.
 
@@ -48,12 +84,14 @@ def collect_jpg_paths(input_dir: Union[Path, str]) -> List[Path]:
         input_dir (Union[Path, str]): A folder containing .jpg files, or a single .jpg file.
 
     Returns:
-        List[Path]: A list of .jpg files.
+        List[Path]: A list of .jpg files, sorted in natural order.
     """
     if not isinstance(input_dir, Path):
         input_dir = Path(input_dir)
 
-    return [input_dir] if input_dir.is_file() else list(input_dir.rglob("*.jpg"))
+    jpg_paths = [input_dir] if input_dir.is_file() else list(input_dir.rglob("*.jpg"))
+    jpg_paths.sort(key=natural_keys)
+    return jpg_paths
 
 
 # mathematical operations
@@ -70,11 +108,11 @@ def round_to_int(val: float) -> int:
     return int(val + 0.5)
 
 
-def round_array(vals: Union[List, np.array]) -> Union[List[List[int]], List[int]]:
+def round_array(vals: Union[List, np.ndarray]) -> Union[List[List[int]], List[int]]:
     """Round an entire list/array (or list/array of lists/arrays) of values to integers.
 
     Args:
-        vals (Union[List, np.array]): The list/array (or list/array of lists/arrays) to round.
+        vals (Union[List, np.ndarray]): The list/array (or list/array of lists/arrays) to round.
 
     Returns:
         Union[List[List[int]], List[int]]: The rounded output list.
@@ -111,6 +149,31 @@ def normalize_8bit_hsv(hsv_list: Union[List[int], List[List[int]]]) -> Union[Lis
     if just_one:
         normalized = normalized[0]
     return normalized
+
+
+def crop_center(rgb_image_data: np.ndarray, border_percent_y: float, border_percent_x: float = None) -> np.ndarray:
+    """Crop the borders of an image, leaving only the center.
+
+    Source: https://stackoverflow.com/a/39382475
+
+    Args:
+        rgb_image_data (np.ndarray): The image to crop, as a NumPy array.
+        border_percent_y (float): The percentage to crop from the top and bottom.
+        border_percent_x (float, optional): The percentage to crop from the left and right; if None, sets to the
+            same value as border_percent_y. Defaults to None.
+
+    Returns:
+        np.ndarray: The cropped image array.
+    """
+    if border_percent_x is None:
+        border_percent_x = border_percent_y
+    height, width = rgb_image_data.shape[0], rgb_image_data.shape[1]
+    cropped_height = height - (2 * round_to_int(border_percent_y * height))
+    cropped_width = width - (2 * round_to_int(border_percent_x * width))
+
+    start_y = height // 2 - (cropped_height // 2)
+    start_x = width // 2 - (cropped_width // 2)
+    return rgb_image_data[start_y : start_y + cropped_height, start_x : start_x + cropped_width]
 
 
 # color space conversions
@@ -175,30 +238,30 @@ def hsv_to_rgb(
     return converted
 
 
-# def get_sample(image: np.array) -> np.array:
+# def get_sample(image: np.ndarray) -> np.ndarray:
 #     """Get a sample of pixels from an image.
 
 #     Gets data from rule of thirds lines and quadrant lines.
 
 #     Args:
-#         image (np.array): The image from which to pull the sample.
+#         image (np.ndarray): The image from which to pull the sample.
 
 #     Returns:
-#         np.array: A sample of pixels from the provided image.
+#         np.ndarray: A sample of pixels from the provided image.
 #     """
 #     rot_sample = get_rule_of_thirds_sample(image)
 #     quad_sample = get_quadrant_sample(image)
 #     return np.concatenate((rot_sample, quad_sample))
 
 
-# def get_rule_of_thirds_sample(image: np.array) -> np.array:
+# def get_rule_of_thirds_sample(image: np.ndarray) -> np.ndarray:
 #     """Get a sample of pixels from an image using the "rule of thirds" lines.
 
 #     Args:
-#         image (np.array): The image from which to pull the sample.
+#         image (np.ndarray): The image from which to pull the sample.
 
 #     Returns:
-#         np.array: A sample of pixels from the provided image.
+#         np.ndarray: A sample of pixels from the provided image.
 #     """
 #     height, width, _ = np.shape(image)
 #     h0 = int(height / 3)
@@ -206,26 +269,26 @@ def hsv_to_rgb(
 #     v0 = int(width / 3)
 #     v1 = v0 * 2
 
-#     horizontal_slices = np.array([image[h0], image[h1]]).reshape((width * 2), 3)
-#     vertical_slices = np.array([image[:, v0], image[:, v1]]).reshape((height * 2), 3)
+#     horizontal_slices = np.ndarray([image[h0], image[h1]]).reshape((width * 2), 3)
+#     vertical_slices = np.ndarray([image[:, v0], image[:, v1]]).reshape((height * 2), 3)
 #     return np.concatenate((horizontal_slices, vertical_slices))
 
 
-# def get_quadrant_sample(image: np.array) -> np.array:
+# def get_quadrant_sample(image: np.ndarray) -> np.ndarray:
 #     """Get a sample of pixels from an image using quadrant lines
 
 #     Sample draws pixels along the lines that bisect the image horizontally and vertically.
 
 #     Args:
-#         image (np.array): The image from which to pull the sample.
+#         image (np.ndarray): The image from which to pull the sample.
 
 #     Returns:
-#         np.array: A sample of pixels from the provided image.
+#         np.ndarray: A sample of pixels from the provided image.
 #     """
 #     height, width, _ = np.shape(image)
 #     h = int(height / 2)
 #     v = int(width / 2)
 
-#     horizontal_slice = np.array([image[h]]).reshape(width, 3)
-#     vertical_slice = np.array([image[:, v]]).reshape(height, 3)
+#     horizontal_slice = np.ndarray([image[h]]).reshape(width, 3)
+#     vertical_slice = np.ndarray([image[:, v]]).reshape(height, 3)
 #     return np.concatenate((horizontal_slice, vertical_slice))

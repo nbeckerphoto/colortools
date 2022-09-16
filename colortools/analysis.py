@@ -4,17 +4,17 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-def fit_and_predict(rgb_image_data: np.array, n_clusters: int) -> Tuple[KMeans, np.array]:
+def fit_and_predict(rgb_image_data: np.ndarray, n_clusters: int) -> Tuple[KMeans, np.ndarray]:
     """Create a scikit-learn k-means model and fit to provided data.
 
     Create the model, fit it to the provided RGB image data, and get predictions for the provided data.
 
     Args:
-        rgb_image_data (np.array): An RGB image as an array.
+        rgb_image_data (np.ndarray): An RGB image as an array.
         n_clusters (int): The number of clusters to find in the data.
 
     Returns:
-        Tuple[KMeans, np.array]: The fitted model clusters and the predictions for the provided data.
+        Tuple[KMeans, np.ndarray]: The fitted model clusters and the predictions for the provided data.
     """
     image_size = rgb_image_data.shape[0] * rgb_image_data.shape[1]
     image_rgb_data = rgb_image_data.reshape((image_size, 3))
@@ -23,14 +23,14 @@ def fit_and_predict(rgb_image_data: np.array, n_clusters: int) -> Tuple[KMeans, 
     return clusters, predicted
 
 
-def build_histogram_from_clusters(cluster_model: KMeans) -> List[Tuple[np.array, float]]:
+def build_histogram_from_clusters(cluster_model: KMeans) -> List[Tuple[np.ndarray, float]]:
     """Generate a distribution of predictions for provided k-means cluster model.
 
     Args:
         cluster_model (KMeans): Fitted k-means cluster model from which to generate a histogram.
 
     Returns:
-        List[Tuple[np.array, float]]: A histogram (distribution) of predictions and their associated
+        List[Tuple[np.ndarray, float]]: A histogram (distribution) of predictions and their associated
             proportions.
     """
     bins = np.arange(0, len(cluster_model.cluster_centers_) + 1)  # bins by label ([0, 1, 2, 3, ...])

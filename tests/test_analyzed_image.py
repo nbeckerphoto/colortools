@@ -11,6 +11,7 @@ from conftest import ARRAY_TOLERANCE
 AUTO_N_HEURISTICS = [nch for nch in NColorsHeuristic]
 DOMINANT_COLOR_ALGORITHMS = [dca for dca in DominantColorAlgorithm]
 TEST_IMAGE_DIR = "tests/test_images/test_analyzed_image"
+EDGE_CROP = 0
 
 
 def get_image_path(dimensions, color_name):
@@ -35,7 +36,7 @@ def get_image_path(dimensions, color_name):
 def test_analyzed_image_resize(test_dimensions, resize_long_axis, target_dimensions, auto_n_heuristic):
     image_path = get_image_path(test_dimensions, "blue")
     analyzed_image = AnalyzedImage(
-        image_path, resize_long_axis, DominantColorAlgorithm.HUE_DIST, None, auto_n_heuristic
+        image_path, resize_long_axis, EDGE_CROP, DominantColorAlgorithm.HUE_DIST, None, auto_n_heuristic
     )
     assert (analyzed_image.width, analyzed_image.height) == target_dimensions
 
@@ -52,7 +53,7 @@ def test_analyzed_image_resize(test_dimensions, resize_long_axis, target_dimensi
 def test_analyzed_image_orientation(test_dimensions, resize_long_axis, target_orientation, auto_n_heuristic):
     image_path = get_image_path(test_dimensions, "red")
     orientation = AnalyzedImage(
-        image_path, resize_long_axis, DominantColorAlgorithm.HUE_DIST, None, auto_n_heuristic
+        image_path, resize_long_axis, EDGE_CROP, DominantColorAlgorithm.HUE_DIST, None, auto_n_heuristic
     ).get_orientation()
     assert orientation == target_orientation
 
@@ -61,7 +62,7 @@ def test_analyzed_image_orientation(test_dimensions, resize_long_axis, target_or
 @pytest.mark.parametrize("auto_n_heuristic", AUTO_N_HEURISTICS)
 def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
-    analyzed_image = AnalyzedImage(image_path, None, dominant_color_algorithm, None, auto_n_heuristic)
+    analyzed_image = AnalyzedImage(image_path, None, EDGE_CROP, dominant_color_algorithm, None, auto_n_heuristic)
     dominant_colors_rgb = analyzed_image.get_dominant_colors()
     dominant_colors_hsv = analyzed_image.get_dominant_colors(hsv=True)
     assert len(dominant_colors_rgb) == len(dominant_colors_hsv)
@@ -75,7 +76,7 @@ def test_analyzed_image_algorithms(dominant_color_algorithm, auto_n_heuristic):
 def test_initialization_error_n_colors_n_heuristic(caplog):
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     with caplog.at_level(logging.WARNING):
-        _ = AnalyzedImage(image_path, None, DominantColorAlgorithm.KMEANS, None, None)
+        _ = AnalyzedImage(image_path, None, EDGE_CROP, DominantColorAlgorithm.KMEANS, None, None)
 
     assert "setting n_colors=1" in caplog.text
 
@@ -83,14 +84,14 @@ def test_initialization_error_n_colors_n_heuristic(caplog):
 @pytest.mark.parametrize("n_colors", [0, None, 1])
 def test_initialization_hue_dist_default_n_heuristic(n_colors):
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
-    analyzed_image = AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, None)
+    analyzed_image = AnalyzedImage(image_path, None, EDGE_CROP, DominantColorAlgorithm.HUE_DIST, n_colors, None)
     assert analyzed_image.n_colors == 1
 
 
 def test_initialization_error_bad_algorithm():
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
     with pytest.raises(ValueError):
-        _ = AnalyzedImage(image_path, None, "FAKE_ALGORITHM", 5, None)
+        _ = AnalyzedImage(image_path, None, EDGE_CROP, "FAKE_ALGORITHM", 5, None)
 
 
 @pytest.mark.parametrize(
@@ -99,7 +100,7 @@ def test_initialization_error_bad_algorithm():
 )
 def test_is_bw(test_color, target_is_bw):
     image_path = get_image_path((100, 100), test_color)
-    analyzed_image = AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, 1, None)
+    analyzed_image = AnalyzedImage(image_path, None, EDGE_CROP, DominantColorAlgorithm.HUE_DIST, 1, None)
     assert analyzed_image.is_bw() == target_is_bw
 
 
@@ -108,7 +109,7 @@ def test_is_bw(test_color, target_is_bw):
 @pytest.mark.parametrize("n_colors", [1, 2, 100])
 def test_generate_filename(n_colors, index, base):
     image_path = f"{TEST_IMAGE_DIR}/red-blue.jpg"
-    analyzed_image = AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, n_colors, None)
+    analyzed_image = AnalyzedImage(image_path, None, EDGE_CROP, DominantColorAlgorithm.HUE_DIST, n_colors, None)
     test_filename = analyzed_image.generate_filename(index, base)
     if index is not None:
         assert f"{str(index)}_" in test_filename

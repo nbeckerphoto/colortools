@@ -55,6 +55,12 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         help="heuristic used to set `n` for the clustering algorithm",
     )
     parser.add_argument(
+        "--skip_analysis_crop",
+        "--skip-analysis-crop",
+        action="store_true",
+        help="Analyze images in their entirety, without any edge cropping.",
+    )
+    parser.add_argument(
         "--exclude_bw",
         "--exclude-bw",
         action="store_true",
@@ -134,6 +140,8 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
     if args.exclude_bw and args.exclude_color:
         logging.error("Cannot set both --exclude_bw and --exclude_color")
         return None
+    if args.spectrum_all_colors:
+        args.spectrum = True
     if not (args.summary or args.sort or args.save_sorted or args.dominant_colors or args.spectrum or args.collage):
         logging.error(
             "No output action selected; please select "
@@ -155,6 +163,7 @@ def print_verbose_output(args: argparse.Namespace):
     print(f"- algorithm={args.algorithm}")
     print(f"- n_colors={args.n_colors}")
     print(f"- n_colors_heuristic={args.n_colors_heuristic}")
+    print(f"- skip_analysis_crop={args.skip_analysis_crop}")
     print()
 
     print("Action summary:")
@@ -213,11 +222,13 @@ def run():
         else:
             print(f"Analyzing {n_jpg_paths} images...")
             analyzed_images = []
+            edge_crop = 0 if args.skip_analysis_crop else config.DEFAULT_EDGE_CROP
             for jpg_path in tqdm(jpg_paths, ascii=True):
                 analyzed_images.append(
                     AnalyzedImage(
                         image_path=jpg_path,
                         resize_long_axis=config.DEFAULT_RESIZE_LONG_AXIS,
+                        edge_crop=edge_crop,
                         dominant_color_algorithm=args.algorithm,
                         n_colors=args.n_colors,
                         auto_n_heuristic=args.n_colors_heuristic,

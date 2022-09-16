@@ -1,6 +1,26 @@
 # Changelog
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Next Release] - In Progress
+### Added 
+- Option for cropping edges before image analysis, including parameter in config and CLI option to skip analysis cropping. Updated tests (and fixed those that were broken due to new constructor signature for `AnalyzedImage`). 
+- New `DEFAULT_N_COLORS_MAX` parameter in config (and removed hard-coded value in `heuristics.py`). 
+- Upper limit on the size of output visualizations.
+
+### Changed
+- Updated default values: 
+    - `DEFAULT_N_COLORS_MIN` to 2 instead of 1.
+    - `DEFAULT_BAR_WIDTH` to 50 instead of 100. 
+    - `DEFAULT_RESIZE_LONG_AXIS` to 500 instead of 400. 
+- Use natural ordering for image processing order if not sorting output images.
+- Removed imports from `config.py`.
+
+### Fixed 
+- Bug in which `DEFAULT_N_COLORS_MIN` was not being used.
+- Bug in which `--spectrum` was not automatically enabled if `--spectrum_all_colors` was enabled.
+- Erroneous type references of `np.array` changed to `np.ndarray`.
+
+
 ## [1.0.0-beta.2] - In Progress
 ### Added 
 - Sort functions for sorting by saturation and value. 

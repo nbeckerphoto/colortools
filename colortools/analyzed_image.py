@@ -29,6 +29,7 @@ class AnalyzedImage:
         self,
         image_path: Union[Path, str],
         resize_long_axis: int,
+        edge_crop: float,
         dominant_color_algorithm: util.DominantColorAlgorithm,
         n_colors: int,
         auto_n_heuristic: NColorsHeuristic,
@@ -64,6 +65,7 @@ class AnalyzedImage:
 
         self.pil_image = pil_image.resize((resized_width, resized_height))
         self.width, self.height = self.pil_image.size
+        self.edge_crop = edge_crop
 
         # set n, if not provided
         if n_colors is None or n_colors == 0:
@@ -73,7 +75,7 @@ class AnalyzedImage:
                 self.n_colors = 1
             else:
                 auto_n_heuristic_func = get_n_heuristic(auto_n_heuristic)
-                self.n_colors = auto_n_heuristic_func(self.get_as_array(hsv=True))
+                self.n_colors = auto_n_heuristic_func(self.get_as_array(hsv=True, crop_center=True))
         else:
             self.n_colors = n_colors
 
@@ -98,7 +100,7 @@ class AnalyzedImage:
         Returns:
             Tuple[List, List]: The dominant colors (RGB values, HSV values).
         """
-        hue_dist = compute_hue_dist(self.get_as_array(hsv=True))
+        hue_dist = compute_hue_dist(self.get_as_array(hsv=True, crop_center=True))
         hue_dist = [
             (hue, hsv_list) for hue, hsv_list in sorted(hue_dist.items(), key=lambda item: len(item[1]), reverse=True)
         ]
@@ -130,25 +132,30 @@ class AnalyzedImage:
         Returns:
             Tuple[List, List]: The dominant colors (RGB values, HSV values).
         """
-        self.model, self.predicted = fit_and_predict(self.get_as_array(), n_colors)
+        self.model, self.predicted = fit_and_predict(self.get_as_array(crop_center=True), n_colors)
         self.cluster_histogram = build_histogram_from_clusters(self.model)
         dominant_colors_rgb = [rgb.tolist() for rgb, _ in self.cluster_histogram]
         dominant_colors_hsv = util.rgb_to_hsv(dominant_colors_rgb)
         return dominant_colors_rgb, dominant_colors_hsv
 
-    def get_as_array(self, hsv=False) -> np.array:
+    def get_as_array(self, hsv=False, crop_center=False) -> np.ndarray:
         """Get this image as a NumPy array.
 
         Args:
             hsv (bool, optional): Whether to convert pixels to HSV space before returning. Defaults to False.
 
         Returns:
-            np.array: This image as a NumPy array.
+            np.ndarray: This image as a NumPy array.
         """
         if hsv:
-            return np.asarray(self.pil_image.convert("HSV"))
+            as_array = np.asarray(self.pil_image.convert("HSV"))
         else:
-            return np.asarray(self.pil_image)
+            as_array = np.asarray(self.pil_image)
+
+        if crop_center:
+            return util.crop_center(as_array, self.edge_crop)
+        else:
+            return as_array
 
     def get_dominant_colors(self, hsv=False, round=False) -> List[List]:
         """Get the dominant colors that were computed for this image.
@@ -222,7 +229,7 @@ class AnalyzedImage:
                 other_rgb_data = other.get_as_array().reshape((other.height * other.width, 3))
                 other_predicted = self.model.predict(other_rgb_data)
 
-            remapped_image = np.array([target_colors[i] for i in other_predicted])
+            remapped_image = np.ndarray([target_colors[i] for i in other_predicted])
             return Image.fromarray(np.uint8(remapped_image.reshape((self.height, self.width, 3))))
         else:
             raise ValueError(f"Cannot remap images using the {self.dominant_color_algorithm.value} algorithm")

@@ -6,12 +6,16 @@ from colortools.sort import get_sort_function, huesort, satsort, valsort
 from colortools.util import DominantColorAlgorithm
 
 TEST_IMAGE_DIR = "tests/test_images/test_sort"
+EDGE_CROP = 0
 
 
 def load_analyzed_images():
     test_image_dir = Path(TEST_IMAGE_DIR)
     image_paths = list(test_image_dir.glob("*.jpg"))
-    return [AnalyzedImage(image_path, None, DominantColorAlgorithm.HUE_DIST, 1, None) for image_path in image_paths]
+    return [
+        AnalyzedImage(image_path, None, EDGE_CROP, DominantColorAlgorithm.HUE_DIST, 1, None)
+        for image_path in image_paths
+    ]
 
 
 @pytest.mark.parametrize(
