@@ -75,7 +75,7 @@ $ pip install dist/npt_colortools-VERSION-none-any.whl
 ```
 
 ### Tests and Coverage
-To run tests with `coverage`, genrate an HTML report, and open the report: 
+To run tests with `coverage`, generate an HTML report, and open the report: 
 
 ```
 $ coverage run -m pytest tests && coverage html && open htmlcov/index.html 

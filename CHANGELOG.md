@@ -1,7 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.0.0-beta.2] - In Progress
+
+## [1.0.0-beta.2] - 15 Jul 2022
 ### Added 
 - Sort functions for sorting by saturation and value. 
 - Many new tests, bringing coverage to 96%. Excluded `tests` folder from `coverage` reports with new entry in `pyproject.toml`.
