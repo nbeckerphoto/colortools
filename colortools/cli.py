@@ -132,7 +132,10 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
     Returns:
         argparse.Namespace: The checked arguments.
     """
+    if not args.sort:
+        logging.warning("No sort method provided! Use --help to see valid values if you wish to sort your output.")
     if args.save_sorted and not args.sort:
+        logging.warning(f"--save_sorted enabled with no sort method; defaulting to {config.DEFAULT_SORT_METHOD}")
         args.sort = config.DEFAULT_SORT_METHOD
     if not args.algorithm == util.DominantColorAlgorithm.KMEANS and args.dominant_colors_remapped:
         logging.warning("Unable to remap image using hue_dist algorithm; ignoring --dominant_colors_remapped")
@@ -142,10 +145,18 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
         return None
     if args.spectrum_all_colors:
         args.spectrum = True
-    if not (args.summary or args.sort or args.save_sorted or args.dominant_colors or args.spectrum or args.collage):
+    if not (
+        args.summary
+        or args.sort
+        or args.save_sorted
+        or args.dominant_colors
+        or args.dominant_colors_remapped
+        or args.spectrum
+        or args.collage
+    ):
         logging.error(
             "No output action selected; please select "
-            "--summary, --sort, --save_sorted, --dominant_colors, or --spectrum"
+            "--summary, --sort, --save_sorted, --dominant_colors, --dominant_colors_remapped, or --spectrum"
         )
         return None
     return args
@@ -174,7 +185,7 @@ def print_verbose_output(args: argparse.Namespace):
             f"- Images will be sorted by {args.sort.value} in {'reverse' if args.sort_reverse else 'standard'} order"
         )
         if args.save_sorted:
-            sorted_dir = f"{args.output_dir}/{config.DEFAULT_SORTED_DIR}"
+            sorted_dir = Path(args.output_dir, config.DEFAULT_SORTED_DIR)
             print(f"- Sorted images will be saved to {sorted_dir}")
         if args.sort_anchor:
             print(f"- Sort anchor image is {args.sort_anchor}")
@@ -182,7 +193,7 @@ def print_verbose_output(args: argparse.Namespace):
         print("- Images will not be sorted")
 
     if args.dominant_colors or args.dominant_colors_remapped:
-        dominant_colors_dir = f"{args.output_dir}/{config.DEFAULT_DOMINANT_COLOR_DIR}"
+        dominant_colors_dir = Path(args.output_dir, config.DEFAULT_DOMINANT_COLOR_DIR)
         print(
             "- Saving dominant colors graphic "
             f"{'with remapped images ' if args.dominant_colors_remapped else ''}"
@@ -190,7 +201,7 @@ def print_verbose_output(args: argparse.Namespace):
         )
 
     if args.spectrum:
-        spectrum_dir = f"{args.output_dir}/{config.DEFAULT_SPECTRUM_DIR}"
+        spectrum_dir = Path(args.output_dir, config.DEFAULT_SPECTRUM_DIR)
         print(
             "- Saving spectrum graphic "
             f"{'with all spectrum colors' if args.spectrum_all_colors else 'with dominant colors only'} "
@@ -198,7 +209,7 @@ def print_verbose_output(args: argparse.Namespace):
         )
 
     if args.collage:
-        collage_dir = f"{args.output_dir}/{config.DEFAULT_COLLAGE_DIR}"
+        collage_dir = Path(args.output_dir, config.DEFAULT_COLLAGE_DIR)
         print(f"- Saving collage graphic to {collage_dir}")
 
     if args.summary:
@@ -246,9 +257,9 @@ def run():
                 n_sorted = len(analyzed_images)
 
                 if args.save_sorted:
-                    dest_dir = Path(f"{args.output_dir}/{config.DEFAULT_SORTED_DIR}/{timstamp_str}")
+                    dest_dir = Path(args.output_dir, config.DEFAULT_SORTED_DIR, timstamp_str)
                     for i, analyzed_image in enumerate(analyzed_images):
-                        sorted_image_dest = dest_dir / analyzed_image.generate_filename(i, "sorted")
+                        sorted_image_dest = Path(dest_dir, analyzed_image.generate_filename(i, "sorted"))
                         visualization.save(analyzed_image, sorted_image_dest)
                     print(f"Saved {n_sorted} sorted images to {dest_dir}")
                 else:
@@ -257,7 +268,7 @@ def run():
                         print(f"{i+1:4.0f}. {image.image_path}")
 
             if args.dominant_colors or args.dominant_colors_remapped:
-                dest_dir = Path(f"{args.output_dir}/{config.DEFAULT_DOMINANT_COLOR_DIR}/{timstamp_str}")
+                dest_dir = Path(args.output_dir, config.DEFAULT_DOMINANT_COLOR_DIR, timstamp_str)
                 for i, analyzed_image in enumerate(analyzed_images):
                     dominant_colors_dest = dest_dir / analyzed_image.generate_filename(i, "dc")
                     visualization.save_dominant_color_visualization(
@@ -271,7 +282,7 @@ def run():
 
             if args.spectrum:
                 filename = f"{timstamp_str}_spectrum.jpg"
-                spectrum_dest = Path(f"{args.output_dir}/{config.DEFAULT_SPECTRUM_DIR}/{filename}")
+                spectrum_dest = Path(args.output_dir, config.DEFAULT_SPECTRUM_DIR, filename)
                 visualization.save_spectrum_visualization(
                     analyzed_images, args.spectrum_all_colors, spectrum_dest, args.display
                 )
@@ -279,7 +290,7 @@ def run():
 
             if args.collage:
                 filename = f"{timstamp_str}_collage.jpg"
-                collage_dest = Path(f"{args.output_dir}/{config.DEFAULT_COLLAGE_DIR}/{filename}")
+                collage_dest = Path(args.output_dir, config.DEFAULT_COLLAGE_DIR, filename)
                 visualization.save_image_collage(
                     analyzed_images, config.DEFAULT_COLLAGE_WIDTH, collage_dest, args.display
                 )
