@@ -284,7 +284,11 @@ def run():
                 filename = f"{timstamp_str}_spectrum.jpg"
                 spectrum_dest = Path(args.output_dir, config.DEFAULT_SPECTRUM_DIR, filename)
                 visualization.save_spectrum_visualization(
-                    analyzed_images, args.spectrum_all_colors, spectrum_dest, args.display
+                    analyzed_images,
+                    args.spectrum_all_colors,
+                    config.DEFAULT_SPECTRUM_HEIGHT,
+                    spectrum_dest,
+                    args.display,
                 )
                 print(f"Saved spectrum graphic to {spectrum_dest}")
 

@@ -376,7 +376,11 @@ def add_borders(
 
 
 def save_spectrum_visualization(
-    analyzed_images: List[AnalyzedImage], include_all_colors: bool, dest_path: str, display: bool
+    analyzed_images: List[AnalyzedImage],
+    include_all_colors: bool,
+    output_graphic_height: int,
+    dest_path: str,
+    display: bool,
 ):
     """Generate a "spectrum" visualization of the dominant colors in each of a sequence of images.
 
@@ -387,10 +391,14 @@ def save_spectrum_visualization(
             the spectrum graphic.
         include_all_colors (bool): Whether to include all detected dominant colors in the generated
             graphic.
-        dest_path (str): The output folder to which to write the generated graphic.
-        display (bool): Whether to display the generated graphic.
+        output_graphic_height (int): The height of the generated spectrum graphic.
+        dest_path (str): The output folder to which to write the generated spectrum graphic.
+        display (bool): Whether to display the generated spectrum graphic.
     """
-    vertical_bars = [get_histogram_as_bar(img, include_all_colors) for img in analyzed_images]
+    bar_width = round_to_int((output_graphic_height * config.DEFAULT_SPECTRUM_RATIO) / len(analyzed_images))
+    vertical_bars = [
+        get_histogram_as_bar(img, include_all_colors, output_graphic_height, bar_width) for img in analyzed_images
+    ]
     spectrum = concat_horizontal(vertical_bars)
 
     if display:
@@ -401,8 +409,8 @@ def save_spectrum_visualization(
 def get_histogram_as_bar(
     analyzed_image: AnalyzedImage,
     include_all_colors: bool,
-    height: int = config.DEFAULT_BAR_HEIGHT,
-    width: int = config.DEFAULT_BAR_WIDTH,
+    height: int,
+    width: int,
 ) -> Image.Image:
     """Get a representation of an image's dominant color histogram as a stacked vertical bar.
 
