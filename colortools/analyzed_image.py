@@ -224,13 +224,15 @@ class AnalyzedImage:
         if self.dominant_color_algorithm == util.DominantColorAlgorithm.KMEANS:
             target_colors = self.model.cluster_centers_
             if other is None:
-                other_predicted = self.predicted
-            else:  # experimental - TODO test this
-                other_rgb_data = other.get_as_array().reshape((other.height * other.width, 3))
-                other_predicted = self.model.predict(other_rgb_data)
+                height, width = self.height, self.width
+                other_rgb_data = self.get_as_array().reshape((height * width, 3))
+            else:
+                height, width = other.height, other.width
+                other_rgb_data = other.get_as_array().reshape((height * width, 3))
 
-            remapped_image = np.ndarray([target_colors[i] for i in other_predicted])
-            return Image.fromarray(np.uint8(remapped_image.reshape((self.height, self.width, 3))))
+            other_predicted = self.model.predict(other_rgb_data)
+            remapped_image = np.array([target_colors[i] for i in other_predicted])
+            return Image.fromarray(np.uint8(remapped_image.reshape((height, width, 3))))
         else:
             raise ValueError(f"Cannot remap images using the {self.dominant_color_algorithm.value} algorithm")
 
