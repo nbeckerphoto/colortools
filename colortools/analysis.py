@@ -18,7 +18,7 @@ def fit_and_predict(rgb_image_data: np.ndarray, n_clusters: int) -> Tuple[KMeans
     """
     image_size = rgb_image_data.shape[0] * rgb_image_data.shape[1]
     image_rgb_data = rgb_image_data.reshape((image_size, 3))
-    clusters = KMeans(n_clusters=n_clusters, random_state=0)
+    clusters = KMeans(n_clusters=n_clusters, random_state=0, n_init="auto")
     predicted = clusters.fit_predict(image_rgb_data)
     return clusters, predicted
 
