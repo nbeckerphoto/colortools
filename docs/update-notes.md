@@ -41,5 +41,6 @@ References:
 - Test package is used to run all examples for tutorial
 - All examples for tutorial are re-run; console output and sample images are updated
 - Release branch is created and tutorial inspected
-- Release branch merged (via PR) to main and develop
+- Release branch merged (via PR) to main and tagged with version number
+- Main merged to develop
 - Package re-built and uploaded to PyPI
