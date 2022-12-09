@@ -80,3 +80,6 @@ To run tests with `coverage`, generate an HTML report, and open the report:
 ```
 $ coverage run -m pytest tests && coverage html && open htmlcov/index.html 
 ```
+
+### Known Issues
+- First run after installation is _slow_.
