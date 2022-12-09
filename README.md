@@ -14,18 +14,18 @@ For details on how to use `ColorTools`, including many examples, see the include
 
 ```
 $ colortools --help
-usage: __main__.py [-h] [--version] [--algorithm {hue_dist,kmeans}] [--n_colors N_COLORS]
-                   [--n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}] [--exclude_bw] [--exclude_color]
-                   [--sort {hue,saturation,value}] [--sort_reverse] [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose] [--output_dir OUTPUT_DIR]
-                   [--dominant_colors] [--dominant_colors_remapped] [--spectrum] [--spectrum_all_colors] [--collage] [--summary]
-                   input
+usage: colortools [-h] [--version] [--algorithm {hue_dist,kmeans}] [--n_colors N_COLORS]
+                  [--n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}] [--skip_analysis_crop] [--exclude_bw]
+                  [--exclude_color] [--sort {hue,saturation,value}] [--sort_reverse] [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose]
+                  [--output_dir OUTPUT_DIR] [--dominant_colors] [--dominant_colors_remapped] [--spectrum] [--spectrum_all_colors] [--collage] [--summary]
+                  input
 
 Analyze and sort images by their dominant colors.
 
 positional arguments:
   input                 input directory of .jpg files (or a single .jpg file)
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
   --algorithm {hue_dist,kmeans}
@@ -34,6 +34,8 @@ optional arguments:
                         number of dominant colors to compute
   --n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}, --n-colors-heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}
                         heuristic used to set `n` for the clustering algorithm
+  --skip_analysis_crop, --skip-analysis-crop
+                        Analyze images in their entirety, without any edge cropping.
   --exclude_bw, --exclude-bw
                         exclude black and white images from generated graphics
   --exclude_color, --exclude-color
