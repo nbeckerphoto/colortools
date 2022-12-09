@@ -20,42 +20,42 @@ $ colortools input/tutorial --summary
 Output:
 ```
 Analyzed image summary:
-1. 8.jpg: n=1, algorithm=kmeans 
-    rgb=[[62, 62, 62]]
-    hsv=[[0, 0, 24]]
-2. 9.jpg: n=2, algorithm=kmeans 
-    rgb=[[46, 58, 86], [208, 173, 75]]
-    hsv=[[222, 46, 34], [44, 64, 82]]
-3. 12.jpg: n=5, algorithm=kmeans 
-    rgb=[[87, 88, 101], [70, 67, 67], [119, 106, 87], [215, 180, 83], [222, 172, 12]]
-    hsv=[[234, 14, 39], [0, 5, 27], [36, 27, 46], [44, 61, 84], [46, 95, 87]]
-4. 11.jpg: n=3, algorithm=kmeans 
-    rgb=[[104, 159, 95], [73, 109, 55], [162, 148, 168]]
-    hsv=[[112, 40, 62], [101, 50, 43], [283, 12, 66]]
-5. 10.jpg: n=1, algorithm=kmeans 
-    rgb=[[122, 147, 176]]
-    hsv=[[212, 30, 69]]
-6. 4.jpg: n=4, algorithm=kmeans 
-    rgb=[[56, 35, 42], [111, 72, 91], [156, 121, 147], [237, 173, 156]]
-    hsv=[[339, 36, 22], [331, 35, 43], [315, 22, 61], [13, 34, 93]]
-7. 5.jpg: n=1, algorithm=kmeans 
-    rgb=[[100, 122, 20]]
-    hsv=[[73, 84, 48]]
-8. 7.jpg: n=1, algorithm=kmeans 
-    rgb=[[98, 98, 98]]
-    hsv=[[0, 0, 38]]
-9. 6.jpg: n=5, algorithm=kmeans 
-    rgb=[[230, 199, 209], [45, 55, 91], [241, 182, 178], [170, 115, 138], [216, 146, 153]]
-    hsv=[[341, 13, 90], [226, 51, 36], [4, 26, 94], [335, 32, 67], [354, 32, 85]]
-10. 2.jpg: n=1, algorithm=kmeans 
-    rgb=[[173, 131, 60]]
-    hsv=[[38, 65, 68]]
-11. 3.jpg: n=1, algorithm=kmeans 
-    rgb=[[220, 220, 220]]
-    hsv=[[0, 0, 86]]
-12. 1.jpg: n=1, algorithm=kmeans 
-    rgb=[[1, 58, 162]]
-    hsv=[[219, 99, 63]]
+1. 1.jpg: n=2, algorithm=kmeans 
+    rgb=[[0, 70, 185], [3, 45, 133]]
+    hsv=[[217, 100, 73], [221, 98, 52]]
+2. 2.jpg: n=2, algorithm=kmeans 
+    rgb=[[203, 155, 72], [130, 95, 42]]
+    hsv=[[38, 64, 79], [36, 68, 51]]
+3. 3.jpg: n=2, algorithm=kmeans 
+    rgb=[[229, 229, 229], [181, 181, 181]]
+    hsv=[[0, 0, 90], [0, 0, 71]]
+4. 4.jpg: n=4, algorithm=kmeans 
+    rgb=[[56, 35, 42], [111, 71, 89], [156, 120, 145], [238, 176, 157]]
+    hsv=[[340, 37, 22], [333, 36, 44], [318, 23, 61], [14, 34, 93]]
+5. 5.jpg: n=2, algorithm=kmeans 
+    rgb=[[68, 92, 5], [146, 165, 39]]
+    hsv=[[76, 95, 36], [69, 76, 65]]
+6. 6.jpg: n=3, algorithm=kmeans 
+    rgb=[[236, 194, 198], [190, 128, 145], [49, 59, 95]]
+    hsv=[[354, 18, 92], [344, 32, 74], [227, 48, 37]]
+7. 7.jpg: n=2, algorithm=kmeans 
+    rgb=[[81, 81, 81], [152, 152, 152]]
+    hsv=[[0, 0, 32], [0, 0, 59]]
+8. 8.jpg: n=2, algorithm=kmeans 
+    rgb=[[47, 47, 47], [221, 221, 221]]
+    hsv=[[0, 0, 18], [0, 0, 87]]
+9. 9.jpg: n=2, algorithm=kmeans 
+    rgb=[[48, 60, 89], [208, 174, 75]]
+    hsv=[[222, 46, 35], [44, 64, 82]]
+10. 10.jpg: n=2, algorithm=kmeans 
+    rgb=[[151, 176, 203], [77, 103, 133]]
+    hsv=[[211, 26, 80], [213, 42, 52]]
+11. 11.jpg: n=3, algorithm=kmeans 
+    rgb=[[107, 163, 100], [76, 115, 59], [172, 140, 176]]
+    hsv=[[113, 38, 64], [101, 48, 45], [294, 20, 69]]
+12. 12.jpg: n=4, algorithm=kmeans 
+    rgb=[[105, 100, 97], [74, 72, 76], [215, 180, 83], [224, 173, 12]]
+    hsv=[[20, 8, 41], [263, 6, 30], [44, 62, 84], [46, 95, 88]]
 ```
 
 
@@ -71,13 +71,13 @@ Output:
 Sorted 12 images:
    1. input/tutorial/4.jpg
    2. input/tutorial/6.jpg
-   3. input/tutorial/2.jpg
-   4. input/tutorial/5.jpg
-   5. input/tutorial/11.jpg
-   6. input/tutorial/10.jpg
-   7. input/tutorial/1.jpg
-   8. input/tutorial/9.jpg
-   9. input/tutorial/12.jpg
+   3. input/tutorial/12.jpg
+   4. input/tutorial/2.jpg
+   5. input/tutorial/5.jpg
+   6. input/tutorial/11.jpg
+   7. input/tutorial/10.jpg
+   8. input/tutorial/1.jpg
+   9. input/tutorial/9.jpg
   10. input/tutorial/8.jpg
   11. input/tutorial/7.jpg
   12. input/tutorial/3.jpg
@@ -113,7 +113,7 @@ Image 1 | Image 2 | image 3
 
 
 ### Example 5
-Notice something about the results in the previous example? Many of the computed dominant colors are quite similar. This dominant color detection algorithm only works well for determining the _single_ most dominant color. 
+Notice something about the results in the previous example? Many of the computed dominant colors are quite similar. (You probably saw warnings about this in the console after you ran this command.) This dominant color detection algorithm only works well for determining the _single_ most dominant color. 
 
 To do that, we can use the `--n_colors` argument. 
 
@@ -295,41 +295,41 @@ Summary printout:
 ```
 Analyzed image summary:
 1. 4.jpg: n=4, algorithm=kmeans 
-    rgb=[[56, 35, 42], [111, 72, 91], [156, 121, 147], [237, 173, 156]]
-    hsv=[[339, 36, 22], [331, 35, 43], [315, 22, 61], [13, 34, 93]]
-2. 6.jpg: n=5, algorithm=kmeans 
-    rgb=[[230, 199, 209], [45, 55, 91], [241, 182, 178], [170, 115, 138], [216, 146, 153]]
-    hsv=[[341, 13, 90], [226, 51, 36], [4, 26, 94], [335, 32, 67], [354, 32, 85]]
-3. 2.jpg: n=1, algorithm=kmeans 
-    rgb=[[173, 131, 60]]
-    hsv=[[38, 65, 68]]
-4. 5.jpg: n=1, algorithm=kmeans 
-    rgb=[[100, 122, 20]]
-    hsv=[[73, 84, 48]]
-5. 11.jpg: n=3, algorithm=kmeans 
-    rgb=[[104, 159, 95], [73, 109, 55], [162, 148, 168]]
-    hsv=[[112, 40, 62], [101, 50, 43], [283, 12, 66]]
-6. 10.jpg: n=1, algorithm=kmeans 
-    rgb=[[122, 147, 176]]
-    hsv=[[212, 30, 69]]
-7. 1.jpg: n=1, algorithm=kmeans 
-    rgb=[[1, 58, 162]]
-    hsv=[[219, 99, 63]]
-8. 9.jpg: n=2, algorithm=kmeans 
-    rgb=[[46, 58, 86], [208, 173, 75]]
-    hsv=[[222, 46, 34], [44, 64, 82]]
-9. 12.jpg: n=5, algorithm=kmeans 
-    rgb=[[87, 88, 101], [70, 67, 67], [119, 106, 87], [215, 180, 83], [222, 172, 12]]
-    hsv=[[234, 14, 39], [0, 5, 27], [36, 27, 46], [44, 61, 84], [46, 95, 87]]
-10. 8.jpg: n=1, algorithm=kmeans 
-    rgb=[[62, 62, 62]]
-    hsv=[[0, 0, 24]]
-11. 7.jpg: n=1, algorithm=kmeans 
-    rgb=[[98, 98, 98]]
-    hsv=[[0, 0, 38]]
-12. 3.jpg: n=1, algorithm=kmeans 
-    rgb=[[220, 220, 220]]
-    hsv=[[0, 0, 86]]
+    rgb=[[56, 35, 42], [111, 71, 89], [156, 120, 145], [238, 176, 157]]
+    hsv=[[340, 37, 22], [333, 36, 44], [318, 23, 61], [14, 34, 93]]
+2. 6.jpg: n=3, algorithm=kmeans 
+    rgb=[[236, 194, 198], [190, 128, 145], [49, 59, 95]]
+    hsv=[[354, 18, 92], [344, 32, 74], [227, 48, 37]]
+3. 12.jpg: n=4, algorithm=kmeans 
+    rgb=[[105, 100, 97], [74, 72, 76], [215, 180, 83], [224, 173, 12]]
+    hsv=[[20, 8, 41], [263, 6, 30], [44, 62, 84], [46, 95, 88]]
+4. 2.jpg: n=2, algorithm=kmeans 
+    rgb=[[203, 155, 72], [130, 95, 42]]
+    hsv=[[38, 64, 79], [36, 68, 51]]
+5. 5.jpg: n=2, algorithm=kmeans 
+    rgb=[[68, 92, 5], [146, 165, 39]]
+    hsv=[[76, 95, 36], [69, 76, 65]]
+6. 11.jpg: n=3, algorithm=kmeans 
+    rgb=[[107, 163, 100], [76, 115, 59], [172, 140, 176]]
+    hsv=[[113, 38, 64], [101, 48, 45], [294, 20, 69]]
+7. 10.jpg: n=2, algorithm=kmeans 
+    rgb=[[151, 176, 203], [77, 103, 133]]
+    hsv=[[211, 26, 80], [213, 42, 52]]
+8. 1.jpg: n=2, algorithm=kmeans 
+    rgb=[[0, 70, 185], [3, 45, 133]]
+    hsv=[[217, 100, 73], [221, 98, 52]]
+9. 9.jpg: n=2, algorithm=kmeans 
+    rgb=[[48, 60, 89], [208, 174, 75]]
+    hsv=[[222, 46, 35], [44, 64, 82]]
+10. 8.jpg: n=2, algorithm=kmeans 
+    rgb=[[47, 47, 47], [221, 221, 221]]
+    hsv=[[0, 0, 18], [0, 0, 87]]
+11. 7.jpg: n=2, algorithm=kmeans 
+    rgb=[[81, 81, 81], [152, 152, 152]]
+    hsv=[[0, 0, 32], [0, 0, 59]]
+12. 3.jpg: n=2, algorithm=kmeans 
+    rgb=[[229, 229, 229], [181, 181, 181]]
+    hsv=[[0, 0, 90], [0, 0, 71]]
 ```
 
 Selected dominant color graphics with remapping: 
