@@ -1,7 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.0.0] - In Progress
+## [1.0.1] - 23 January 2023
+### Fixed
+- Updated `scikit-learn` version in `requirements.txt` to fix `TypeError`
+
+
+## [1.0.0] - 8 December 2022
 ### Added 
 - Option for cropping edges before image analysis, including parameter in config and CLI option to skip analysis cropping. Updated tests (and fixed those that were broken due to new constructor signature for `AnalyzedImage`). 
 - New `DEFAULT_N_COLORS_MAX` parameter in config (and removed hard-coded value in `heuristics.py`). 
@@ -23,7 +28,7 @@ All notable changes to this project will be documented in this file. The format 
 - Erroneous type references of `np.array` changed to `np.ndarray` in docstrings.
 
 
-## [1.0.0-beta.2] - In Progress
+## [1.0.0-beta.2] - 6 December 2022
 ### Added 
 - Sort functions for sorting by saturation and value. 
 - Many new tests, bringing coverage to 96%. Excluded `tests` folder from `coverage` reports with new entry in `pyproject.toml`.
