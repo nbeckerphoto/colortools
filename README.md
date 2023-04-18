@@ -3,10 +3,10 @@
 A commandline tool for analyzing and sorting images by their dominant colors.
 
 ## Installation
-Installation is simple using `pip`: 
+Installation is simple using `pip` (note the `-nbp` prefix!): 
 
 ```
-$ pip install colortools
+$ pip install nbp-colortools
 ```
 
 ## Usage
