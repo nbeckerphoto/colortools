@@ -23,6 +23,7 @@ from colortools.config import DEFAULT_N_COLORS_MIN
     ],
 )
 def test_get_hue_dist_simple(n_hues, n_bins, expected_count):
+    """Hue counts land in the correct bins when hues are evenly binned across the full hue range."""
     test_input = get_hsv_array(n_hues)
     hue_dist = compute_hue_dist(test_input, n_bins, hue_counts_only=True)
     expected = {i: 0 for i in range(n_bins)}
@@ -31,6 +32,7 @@ def test_get_hue_dist_simple(n_hues, n_bins, expected_count):
 
 
 def test_get_hue_dist_exception():
+    """A hue value outside the valid 0-255 range raises rather than silently mis-binning."""
     test_input = get_hsv_array(257)
     with pytest.raises(ValueError):
         _ = compute_hue_dist(test_input)
@@ -41,6 +43,7 @@ def test_get_hue_dist_exception():
     [(1, DEFAULT_N_COLORS_MIN), (51, 2), (80, 3), (160, 5), (239, 7), (240, 8), (256, 8)],
 )
 def test_auto_n_hue(test_hue_number, expected_n):
+    """auto_n_hue scales cluster count with hue coverage, clamped to the configured minimum."""
     test_input = get_hsv_array(test_hue_number)
     n = auto_n_hue(test_input)
     assert n == expected_n
@@ -66,6 +69,7 @@ def test_auto_n_hue(test_hue_number, expected_n):
     ],
 )
 def test_auto_n_hue_binned(test_hue_number, distribute_hues, expected_n):
+    """auto_n_hue_binned counts bins with any pixels present, clamped to the configured minimum."""
     test_input = get_hsv_array(test_hue_number, distribute_hues)
     n = auto_n_hue_binned(test_input)
     assert n == expected_n
@@ -97,6 +101,7 @@ def test_auto_n_hue_binned(test_hue_number, distribute_hues, expected_n):
     ],
 )
 def test_auto_n_hue_binned_with_threshold(test_hue_number, distribute_hues, extra_hues, threshold, expected_n):
+    """auto_n_binned_with_threshold counts bins at or above the given fraction of the max bin's count."""
     test_input = get_hsv_array(test_hue_number, distribute_hues, extra_hues)
     n = auto_n_binned_with_threshold(test_input, threshold)
     assert n == expected_n
@@ -139,11 +144,13 @@ def test_auto_n_hue_binned_with_threshold(test_hue_number, distribute_hues, extr
     ],
 )
 def test_auto_n_simple_threshold(test_hue_number, distribute_hues, extra_hues, threshold, expected_n):
+    """auto_n_simple_threshold counts bins at or above the given fraction of total pixel count."""
     test_input = get_hsv_array(test_hue_number, distribute_hues, extra_hues)
     n = auto_n_simple_threshold(test_input, threshold)
     assert n == expected_n
 
 
 def test_get_n_heuristic_bad():
+    """An unrecognized heuristic name raises rather than silently returning nothing."""
     with pytest.raises(ValueError):
         _ = get_n_heuristic("FAKE")

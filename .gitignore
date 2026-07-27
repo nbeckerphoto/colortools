@@ -6,6 +6,7 @@
 .DS_Store
 .pytest_cache/
 __pycache__/
+build/*
 dist/
 scripts/
 venv*/

@@ -33,6 +33,13 @@ class DominantColorAlgorithm(str, Enum):
     KMEANS = "kmeans"
 
 
+class ColorSpace(str, Enum):
+    """Enum for color spaces used when clustering with the KMEANS algorithm."""
+
+    RGB = "rgb"
+    LAB = "lab"
+
+
 # general operations
 # --------------------------------------------------------------------------------
 def get_timestamp_string() -> str:
@@ -117,7 +124,7 @@ def round_array(vals: Union[List, np.ndarray]) -> Union[List[List[int]], List[in
     Returns:
         Union[List[List[int]], List[int]]: The rounded output list.
     """
-    rounded = np.uint(np.around(vals, 0))
+    rounded = np.around(vals, 0).astype(int)
     return [a.tolist() for a in rounded]
 
 
@@ -238,57 +245,91 @@ def hsv_to_rgb(
     return converted
 
 
-# def get_sample(image: np.ndarray) -> np.ndarray:
-#     """Get a sample of pixels from an image.
+# sRGB <-> CIE XYZ <-> CIE L*a*b* conversion constants (D65 white point).
+# Reference: http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 
-#     Gets data from rule of thirds lines and quadrant lines.
+# sRGB gamma companding (IEC 61966-2-1): piecewise linear-near-black, power curve elsewhere.
+SRGB_GAMMA_EXPONENT = 2.4
+SRGB_LINEAR_SLOPE = 12.92
+SRGB_GAMMA_OFFSET = 0.055
+SRGB_DECODE_THRESHOLD = 0.04045  # breakpoint in gamma-encoded space, for decoding to linear light
+SRGB_ENCODE_THRESHOLD = 0.0031308  # same breakpoint in linear space, for encoding back to gamma
 
-#     Args:
-#         image (np.ndarray): The image from which to pull the sample.
+# CIE Lab nonlinearity: cube root, with a linear segment near black (below delta**3) to avoid an
+# infinite slope at zero. `delta` is the breakpoint in linear XYZ-ratio terms; the same breakpoint
+# reappears as plain `delta` once already inside the cube-root ("f") domain, e.g. in lab_to_rgb.
+LAB_DELTA = 6 / 29
 
-#     Returns:
-#         np.ndarray: A sample of pixels from the provided image.
-#     """
-#     rot_sample = get_rule_of_thirds_sample(image)
-#     quad_sample = get_quadrant_sample(image)
-#     return np.concatenate((rot_sample, quad_sample))
-
-
-# def get_rule_of_thirds_sample(image: np.ndarray) -> np.ndarray:
-#     """Get a sample of pixels from an image using the "rule of thirds" lines.
-
-#     Args:
-#         image (np.ndarray): The image from which to pull the sample.
-
-#     Returns:
-#         np.ndarray: A sample of pixels from the provided image.
-#     """
-#     height, width, _ = np.shape(image)
-#     h0 = int(height / 3)
-#     h1 = h0 * 2
-#     v0 = int(width / 3)
-#     v1 = v0 * 2
-
-#     horizontal_slices = np.ndarray([image[h0], image[h1]]).reshape((width * 2), 3)
-#     vertical_slices = np.ndarray([image[:, v0], image[:, v1]]).reshape((height * 2), 3)
-#     return np.concatenate((horizontal_slices, vertical_slices))
+LAB_D65_WHITE = np.array([0.95047, 1.0, 1.08883])  # CIE standard illuminant D65 reference white
+LAB_RGB_TO_XYZ_MATRIX = np.array(  # sRGB (linear) to CIE XYZ, D65 white point
+    [
+        [0.4124564, 0.3575761, 0.1804375],
+        [0.2126729, 0.7151522, 0.0721750],
+        [0.0193339, 0.1191920, 0.9503041],
+    ]
+)
+LAB_XYZ_TO_RGB_MATRIX = np.linalg.inv(LAB_RGB_TO_XYZ_MATRIX)
 
 
-# def get_quadrant_sample(image: np.ndarray) -> np.ndarray:
-#     """Get a sample of pixels from an image using quadrant lines
+def rgb_to_lab(rgb: Union[List, np.ndarray]) -> np.ndarray:
+    """Convert RGB values (0-255) to CIE L*a*b*.
 
-#     Sample draws pixels along the lines that bisect the image horizontally and vertically.
+    Unlike `rgb_to_hsv`, this operates via vectorized NumPy operations rather than one color at a time, since
+    it's also used to convert entire images' worth of pixels for clustering in Lab space. Accepts a single
+    color, a list of colors, or a full `(height, width, 3)` image.
 
-#     Args:
-#         image (np.ndarray): The image from which to pull the sample.
+    Args:
+        rgb (Union[List, np.ndarray]): RGB values (0-255), in any shape ending in a size-3 last axis.
 
-#     Returns:
-#         np.ndarray: A sample of pixels from the provided image.
-#     """
-#     height, width, _ = np.shape(image)
-#     h = int(height / 2)
-#     v = int(width / 2)
+    Returns:
+        np.ndarray: The converted L*a*b* values, in the same shape as the input.
+    """
+    rgb_normalized = np.asarray(rgb, dtype=float) / 255
+    linear = np.where(
+        rgb_normalized <= SRGB_DECODE_THRESHOLD,
+        rgb_normalized / SRGB_LINEAR_SLOPE,
+        ((rgb_normalized + SRGB_GAMMA_OFFSET) / (1 + SRGB_GAMMA_OFFSET)) ** SRGB_GAMMA_EXPONENT,
+    )
+    xyz = linear @ LAB_RGB_TO_XYZ_MATRIX.T
 
-#     horizontal_slice = np.ndarray([image[h]]).reshape(width, 3)
-#     vertical_slice = np.ndarray([image[:, v]]).reshape(height, 3)
-#     return np.concatenate((horizontal_slice, vertical_slice))
+    xyz_normalized = xyz / LAB_D65_WHITE
+    f = np.where(
+        xyz_normalized > LAB_DELTA**3,
+        np.cbrt(xyz_normalized),
+        xyz_normalized / (3 * LAB_DELTA**2) + 4 / 29,
+    )
+
+    L = 116 * f[..., 1] - 16
+    a = 500 * (f[..., 0] - f[..., 1])
+    b = 200 * (f[..., 1] - f[..., 2])
+    return np.stack([L, a, b], axis=-1)
+
+
+def lab_to_rgb(lab: Union[List, np.ndarray]) -> np.ndarray:
+    """Convert CIE L*a*b* values back to RGB (0-255).
+
+    See `rgb_to_lab` for details on accepted shapes.
+
+    Args:
+        lab (Union[List, np.ndarray]): L*a*b* values, in any shape ending in a size-3 last axis.
+
+    Returns:
+        np.ndarray: The converted RGB values (0-255), in the same shape as the input.
+    """
+    lab = np.asarray(lab, dtype=float)
+    L, a, b = lab[..., 0], lab[..., 1], lab[..., 2]
+
+    fy = (L + 16) / 116
+    fx, fz = fy + a / 500, fy - b / 200
+    xyz_normalized = np.stack(
+        [np.where(f > LAB_DELTA, f**3, 3 * LAB_DELTA**2 * (f - 4 / 29)) for f in (fx, fy, fz)], axis=-1
+    )
+    xyz = xyz_normalized * LAB_D65_WHITE
+
+    linear = np.clip(xyz @ LAB_XYZ_TO_RGB_MATRIX.T, 0, None)
+    rgb_normalized = np.where(
+        linear <= SRGB_ENCODE_THRESHOLD,
+        linear * SRGB_LINEAR_SLOPE,
+        (1 + SRGB_GAMMA_OFFSET) * linear ** (1 / SRGB_GAMMA_EXPONENT) - SRGB_GAMMA_OFFSET,
+    )
+    return np.clip(rgb_normalized, 0, 1) * 255

@@ -17,8 +17,6 @@ from colortools.heuristics import NColorsHeuristic
 
 logging.basicConfig(format="%(levelname)s: %(message)s")
 
-# TODO tests
-
 
 def parse_args(args: List[str]) -> argparse.Namespace:
     """Parse commandline arguments.
@@ -38,6 +36,14 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         choices=[dca.value for dca in util.DominantColorAlgorithm],
         default=config.DEFAULT_DOMINANT_COLOR_ALGORITHM,
         help="algorithm to use for determining the dominant color of images (default kmeans)",
+    )
+    parser.add_argument(
+        "--color_space",
+        "--color-space",
+        type=util.ColorSpace,
+        choices=[cs.value for cs in util.ColorSpace],
+        default=config.DEFAULT_COLOR_SPACE,
+        help="color space to cluster in when using the kmeans algorithm (default lab); ignored if not using kmeans",
     )
     parser.add_argument(
         "--n_colors",
@@ -140,6 +146,11 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
     if not args.algorithm == util.DominantColorAlgorithm.KMEANS and args.dominant_colors_remapped:
         logging.warning("Unable to remap image using hue_dist algorithm; ignoring --dominant_colors_remapped")
         args.dominant_colors_remapped = False
+    if not args.algorithm == util.DominantColorAlgorithm.KMEANS and args.color_space == util.ColorSpace.LAB:
+        logging.warning("--color_space only applies to the kmeans algorithm; ignoring --color_space")
+        args.color_space = util.ColorSpace.RGB
+    if args.algorithm == util.DominantColorAlgorithm.HUE_DIST and args.n_colors != 1:
+        logging.warning("Using hue_dist with n_colors > 1; dominant colors may be very similar.")
     if args.exclude_bw and args.exclude_color:
         logging.error("Cannot set both --exclude_bw and --exclude_color")
         return None
@@ -172,6 +183,7 @@ def print_verbose_output(args: argparse.Namespace):
     print("Analyze settings:")
     print(f"- input={args.input}")
     print(f"- algorithm={args.algorithm}")
+    print(f"- color_space={args.color_space}")
     print(f"- n_colors={args.n_colors}")
     print(f"- n_colors_heuristic={args.n_colors_heuristic}")
     print(f"- skip_analysis_crop={args.skip_analysis_crop}")
@@ -241,6 +253,7 @@ def run():
                         resize_long_axis=config.DEFAULT_RESIZE_LONG_AXIS,
                         edge_crop=edge_crop,
                         dominant_color_algorithm=args.algorithm,
+                        color_space=args.color_space,
                         n_colors=args.n_colors,
                         auto_n_heuristic=args.n_colors_heuristic,
                     )
@@ -249,7 +262,7 @@ def run():
             if args.exclude_bw:
                 analyzed_images, _ = sort.separate_color_and_bw(analyzed_images)
             if args.exclude_color:
-                _, analyzed_image = sort.separate_color_and_bw(analyzed_images)
+                _, analyzed_images = sort.separate_color_and_bw(analyzed_images)
 
             if args.sort:
                 sort_function = sort.get_sort_function(args.sort)
@@ -265,7 +278,7 @@ def run():
                 else:
                     print(f"Sorted {n_sorted} images:")
                     for i, image in enumerate(analyzed_images):
-                        print(f"{i+1:4.0f}. {image.image_path}")
+                        print(f"{i + 1:4.0f}. {image.image_path}")
 
             if args.dominant_colors or args.dominant_colors_remapped:
                 dest_dir = Path(args.output_dir, config.DEFAULT_DOMINANT_COLOR_DIR, timstamp_str)
@@ -303,4 +316,4 @@ def run():
             if args.summary:
                 print("\nAnalyzed image summary:")
                 for i, image in enumerate(analyzed_images):
-                    print(f"{i+1}. {image.get_pretty_string()}")
+                    print(f"{i + 1}. {image.get_pretty_string()}")

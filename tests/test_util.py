@@ -38,10 +38,12 @@ RGB_HSV_PAIRS = [
     ],
 )
 def test_image_orientation_rotate(orientation, expected):
+    """Rotating swaps HORIZONTAL and VERTICAL, and leaves AUTO unchanged."""
     assert orientation.rotate() == expected
 
 
 def test_get_timestamp_string():
+    """The generated timestamp string parses back with the expected format."""
     ts_str = util.get_timestamp_string()
     try:
         _ = datetime.strptime(ts_str, "%Y%m%d%H%M%S")
@@ -53,6 +55,7 @@ def test_get_timestamp_string():
 
 @pytest.mark.parametrize("input_dir", [TEST_IMAGE_DIR, Path(TEST_IMAGE_DIR)])
 def test_collect_jpg_paths(input_dir):
+    """Collecting from a directory (str or Path) finds every .jpg fixture in it."""
     expected = [
         f"{TEST_IMAGE_DIR}/0-0-0.jpg",
         f"{TEST_IMAGE_DIR}/0-0-50.jpg",
@@ -74,6 +77,7 @@ def test_collect_jpg_paths(input_dir):
 
 @pytest.mark.parametrize("input_file", [f"{TEST_IMAGE_DIR}/0-0-0.jpg", Path(f"{TEST_IMAGE_DIR}/0-0-0.jpg")])
 def test_collect_jpg_paths_one_file(input_file):
+    """Collecting from a single file path (str or Path) returns just that one file."""
     expected = [Path(f"{TEST_IMAGE_DIR}/0-0-0.jpg")]
     results = util.collect_jpg_paths(input_file)
     assert results == expected
@@ -81,6 +85,7 @@ def test_collect_jpg_paths_one_file(input_file):
 
 @pytest.mark.parametrize("test_rgb, test_hsv", RGB_HSV_PAIRS)
 def test_rgb_to_hsv(test_rgb, test_hsv):
+    """RGB values convert to their known-correct HSV equivalents."""
     np.testing.assert_allclose(util.rgb_to_hsv(test_rgb), test_hsv, atol=ARRAY_TOLERANCE)
 
 
@@ -94,6 +99,7 @@ def test_rgb_to_hsv(test_rgb, test_hsv):
     ],
 )
 def test_normalize_8bit_hsv(input, expected):
+    """8-bit HSV values (single or list) normalize to the standard 360/100/100 HSV space."""
     np.testing.assert_allclose(util.normalize_8bit_hsv(input), expected, atol=ARRAY_TOLERANCE)
 
 
@@ -155,6 +161,7 @@ def test_normalize_8bit_hsv(input, expected):
     ],
 )
 def test_crop_center_even_dims(crop_y, crop_x, expected):
+    """Cropping an even-dimensioned array by given y/x percentages yields the hand-computed window."""
     input = np.array(  # 8 x 10
         [
             [47, 40, 48, 23, 74, 12, 33, 58, 93, 87],
@@ -231,6 +238,7 @@ def test_crop_center_even_dims(crop_y, crop_x, expected):
     ],
 )
 def test_crop_center_odd_dims(crop_y, crop_x, expected):
+    """Cropping an odd-dimensioned array by given y/x percentages yields the hand-computed window."""
     input = np.array(  # 7 x 9
         [
             [79, 21, 15, 44, 51, 68, 28, 94, 78],
@@ -250,6 +258,7 @@ def test_crop_center_odd_dims(crop_y, crop_x, expected):
 
 @pytest.mark.parametrize("test_rgb, test_hsv", RGB_HSV_PAIRS)
 def test_hsv_to_rgb(test_rgb, test_hsv):
+    """HSV values convert to their known-correct RGB equivalents."""
     np.testing.assert_allclose(util.hsv_to_rgb(test_hsv), test_rgb, atol=ARRAY_TOLERANCE)
 
 
@@ -267,4 +276,27 @@ def test_hsv_to_rgb(test_rgb, test_hsv):
     ],
 )
 def test_round_to_int(test_input, target_output):
+    """Rounding lands on the correct integer at and around the .5 boundary."""
     assert util.round_to_int(test_input) == target_output
+
+
+@pytest.mark.parametrize("test_rgb, _", RGB_HSV_PAIRS)
+def test_rgb_lab_round_trip_single_color(test_rgb, _):
+    """A single RGB color survives an RGB -> Lab -> RGB round trip."""
+    lab = util.rgb_to_lab(test_rgb)
+    np.testing.assert_allclose(util.lab_to_rgb(lab), test_rgb, atol=ARRAY_TOLERANCE)
+
+
+def test_rgb_lab_round_trip_list_of_colors():
+    """A list of RGB colors survives an RGB -> Lab -> RGB round trip."""
+    test_rgb = [rgb for rgb, _ in RGB_HSV_PAIRS]
+    lab = util.rgb_to_lab(test_rgb)
+    np.testing.assert_allclose(util.lab_to_rgb(lab), test_rgb, atol=ARRAY_TOLERANCE)
+
+
+def test_rgb_lab_round_trip_image_array():
+    """A full (height, width, 3) image array survives an RGB -> Lab -> RGB round trip, shape included."""
+    test_rgb = np.array([[rgb for rgb, _ in RGB_HSV_PAIRS], [rgb for rgb, _ in RGB_HSV_PAIRS]])
+    lab = util.rgb_to_lab(test_rgb)
+    assert lab.shape == test_rgb.shape
+    np.testing.assert_allclose(util.lab_to_rgb(lab), test_rgb, atol=ARRAY_TOLERANCE)

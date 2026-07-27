@@ -15,8 +15,6 @@ logging.basicConfig(format="%(levelname)s: %(message)s")
 
 MAX_IMAGE_DIM = 12000
 
-# TODO tests
-
 
 def save(image: Union[AnalyzedImage, Image.Image, np.ndarray], dest_path: Union[Path, str]):
     """Save the provided image to disk.
@@ -427,7 +425,7 @@ def get_histogram_as_bar(
         Image: An image representing the provided image's dominant color histogram.
     """
     if include_all_colors:
-        color_hist = analyzed_image.cluster_histogram
+        color_hist = list(analyzed_image.cluster_histogram)
     else:
         color_hist = [(analyzed_image.get_dominant_color(), 1)]
 

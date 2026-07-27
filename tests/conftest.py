@@ -5,6 +5,7 @@ ARRAY_TOLERANCE = 1
 
 
 def get_hsv_array(n_hues, distribute=False, extra_hues=[]):
+    """Build a synthetic single-row HSV pixel array covering the given hues, plus any extra hue values."""
     if distribute:
         hue_increment = int(PIL_NUM_HUES / DEFAULT_N_COLORS_MAX)
         hues = [min(hue_increment * n, PIL_NUM_HUES - 1) for n in range(n_hues)]

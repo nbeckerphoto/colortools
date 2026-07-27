@@ -14,10 +14,15 @@ For details on how to use `ColorTools`, including many examples, see the include
 
 ```
 $ colortools --help
-usage: colortools [-h] [--version] [--algorithm {hue_dist,kmeans}] [--n_colors N_COLORS]
-                  [--n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}] [--skip_analysis_crop] [--exclude_bw]
-                  [--exclude_color] [--sort {hue,saturation,value}] [--sort_reverse] [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose]
-                  [--output_dir OUTPUT_DIR] [--dominant_colors] [--dominant_colors_remapped] [--spectrum] [--spectrum_all_colors] [--collage] [--summary]
+usage: colortools [-h] [--version] [--algorithm {hue_dist,kmeans}]
+                  [--color_space {rgb,lab}] [--n_colors N_COLORS]
+                  [--n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}]
+                  [--skip_analysis_crop] [--exclude_bw] [--exclude_color]
+                  [--sort {hue,saturation,value}] [--sort_reverse]
+                  [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose]
+                  [--output_dir OUTPUT_DIR] [--dominant_colors]
+                  [--dominant_colors_remapped] [--spectrum] [--spectrum_all_colors]
+                  [--collage] [--summary]
                   input
 
 Analyze and sort images by their dominant colors.
@@ -29,10 +34,14 @@ options:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
   --algorithm {hue_dist,kmeans}
-                        algorithm to use for determining the dominant color of images (default kmeans)
-  --n_colors N_COLORS, --n-colors N_COLORS
+                        algorithm to use for determining the dominant color of images
+                        (default kmeans)
+  --color_space, --color-space {rgb,lab}
+                        color space to cluster in when using the kmeans algorithm
+                        (default lab); ignored if not using kmeans
+  --n_colors, --n-colors N_COLORS
                         number of dominant colors to compute
-  --n_colors_heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}, --n-colors-heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}
+  --n_colors_heuristic, --n-colors-heuristic {auto_n_hue,auto_n_hue_binned,auto_n_binned_with_threshold,auto_n_simple_threshold}
                         heuristic used to set `n` for the clustering algorithm
   --skip_analysis_crop, --skip-analysis-crop
                         Analyze images in their entirety, without any edge cropping.
@@ -50,12 +59,13 @@ options:
                         save sorted sequence of images
   --display             display generated graphics in addition to saving them
   --verbose             print a summary of the supplied arguments
-  --output_dir OUTPUT_DIR, --output-dir OUTPUT_DIR
+  --output_dir, --output-dir OUTPUT_DIR
                         Output directory for sorted .jpg files.
   --dominant_colors, --dominant-colors
                         save dominant color visualization for each image
   --dominant_colors_remapped, --dominant-colors-remapped
-                        include remapped image in dominant color visualization; ignored if not using kmeans algorithm
+                        include remapped image in dominant color visualization; ignored
+                        if not using kmeans algorithm
   --spectrum            save spectrum image for the current collection of images
   --spectrum_all_colors, --spectrum-all-colors
                         include all detected dominant colors in the spectrum graphic
@@ -73,10 +83,12 @@ $ python -m build
 Then, to install the local build file using `pip`: 
 
 ```
-$ pip install dist/npt_colortools-VERSION-none-any.whl
+$ pip install dist/nbp_colortools-VERSION-none-any.whl
 ```
 
 ### Tests and Coverage
+Run the full test suite with `pytest .`. 
+
 To run tests with `coverage`, generate an HTML report, and open the report: 
 
 ```

@@ -10,6 +10,7 @@ EDGE_CROP = 0
 
 
 def load_analyzed_images():
+    """Load every test fixture image in TEST_IMAGE_DIR, in filesystem (i.e. arbitrary) order."""
     test_image_dir = Path(TEST_IMAGE_DIR)
     image_paths = list(test_image_dir.glob("*.jpg"))
     return [
@@ -23,17 +24,20 @@ def load_analyzed_images():
     [("hue", "huesort"), ("saturation", "satsort"), ("value", "valsort")],
 )
 def test_get_sort_function(sort_method, expected):
+    """Each sort method name resolves to its corresponding sort function."""
     func = get_sort_function(sort_method)
     assert func.__name__ == expected
 
 
 def test_bad_get_sort_function():
+    """An unrecognized sort method name raises rather than silently returning nothing."""
     with pytest.raises(ValueError):
         _ = get_sort_function("fake")
 
 
 @pytest.mark.parametrize("sort_reverse", [False, True])
 def test_huesort(sort_reverse):
+    """huesort orders color images by hue (then value, then saturation) with bw images always last."""
     target_color_sorted = [
         "0-50-100.jpg",  # actual: [358.5882352941177, 49.411764705882355, 99.6078431372549]
         "0-100-50.jpg",
@@ -138,6 +142,7 @@ def test_huesort(sort_reverse):
     ],
 )
 def test_huesorts_with_anchor(anchor_image, target_color_sorted):
+    """huesort rotates the color-sorted sequence to start at the given anchor image (or not, if not found)."""
     expected = list(target_color_sorted)
     expected.extend(["0-0-0.jpg", "0-0-50.jpg", "0-0-100.jpg"])
 
@@ -148,6 +153,7 @@ def test_huesorts_with_anchor(anchor_image, target_color_sorted):
 
 @pytest.mark.parametrize("sort_reverse", [False, True])
 def test_satsort(sort_reverse):
+    """satsort orders all images by saturation, then value, then hue."""
     expected = [
         "0-0-0.jpg",
         "0-0-50.jpg",
@@ -262,6 +268,7 @@ def test_satsort(sort_reverse):
     ],
 )
 def test_satsort_with_anchor(anchor_image, expected):
+    """satsort rotates the saturation-sorted sequence to start at the given anchor image (or not, if not found)."""
     sorted_all = satsort(load_analyzed_images(), False, anchor_image)
     results = [image.image_path.name for image in sorted_all]
     assert results == expected
@@ -269,6 +276,7 @@ def test_satsort_with_anchor(anchor_image, expected):
 
 @pytest.mark.parametrize("sort_reverse", [False, True])
 def test_valsort(sort_reverse):
+    """valsort orders all images by value, then hue, then saturation."""
     expected = [
         "0-0-0.jpg",
         "0-0-50.jpg",
@@ -383,6 +391,7 @@ def test_valsort(sort_reverse):
     ],
 )
 def test_valuesort_with_anchor(anchor_image, expected):
+    """valsort rotates the value-sorted sequence to start at the given anchor image (or not, if not found)."""
     sorted_all = valsort(load_analyzed_images(), False, anchor_image)
     for s in sorted_all:
         print(s.get_dominant_color(True))

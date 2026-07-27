@@ -13,49 +13,56 @@ The simplest way to use ColorTools is to simply point it to a directory of image
 
 For each image, a list of dominant colors is provided in both RGB and HSV. Dominant colors are represented as lists of length 3 (for [R, G, B] or [H, S, V]). 
 
+
 ```
 $ colortools input/tutorial --summary
+```
+
+Note: you will see the following warning when the `--sort` option is omitted. This is expected and is intended as a reminder that the results will not be sorted. 
+
+```
+WARNING: No sort method provided! Use --help to see valid values if you wish to sort your output.
 ```
 
 Output:
 ```
 Analyzed image summary:
-1. 1.jpg: n=2, algorithm=kmeans 
-    rgb=[[0, 70, 185], [3, 45, 133]]
-    hsv=[[217, 100, 73], [221, 98, 52]]
-2. 2.jpg: n=2, algorithm=kmeans 
-    rgb=[[203, 155, 72], [130, 95, 42]]
-    hsv=[[38, 64, 79], [36, 68, 51]]
-3. 3.jpg: n=2, algorithm=kmeans 
-    rgb=[[229, 229, 229], [181, 181, 181]]
-    hsv=[[0, 0, 90], [0, 0, 71]]
-4. 4.jpg: n=4, algorithm=kmeans 
-    rgb=[[56, 35, 42], [111, 71, 89], [156, 120, 145], [238, 176, 157]]
-    hsv=[[340, 37, 22], [333, 36, 44], [318, 23, 61], [14, 34, 93]]
-5. 5.jpg: n=2, algorithm=kmeans 
-    rgb=[[68, 92, 5], [146, 165, 39]]
-    hsv=[[76, 95, 36], [69, 76, 65]]
-6. 6.jpg: n=3, algorithm=kmeans 
-    rgb=[[236, 194, 198], [190, 128, 145], [49, 59, 95]]
-    hsv=[[354, 18, 92], [344, 32, 74], [227, 48, 37]]
-7. 7.jpg: n=2, algorithm=kmeans 
-    rgb=[[81, 81, 81], [152, 152, 152]]
-    hsv=[[0, 0, 32], [0, 0, 59]]
-8. 8.jpg: n=2, algorithm=kmeans 
-    rgb=[[47, 47, 47], [221, 221, 221]]
-    hsv=[[0, 0, 18], [0, 0, 87]]
-9. 9.jpg: n=2, algorithm=kmeans 
-    rgb=[[48, 60, 89], [208, 174, 75]]
-    hsv=[[222, 46, 35], [44, 64, 82]]
-10. 10.jpg: n=2, algorithm=kmeans 
-    rgb=[[151, 176, 203], [77, 103, 133]]
+1. 1.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[1, 67, 180], [19, 40, 121]]
+    hsv=[[218, 100, 70], [228, 84, 47]]
+2. 2.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[210, 159, 73], [140, 105, 51]]
+    hsv=[[38, 65, 82], [36, 64, 55]]
+3. 3.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[229, 229, 229], [180, 180, 180]]
+    hsv=[[330, 0, 90], [180, 0, 70]]
+4. 4.jpg: n=4, algorithm=kmeans, color_space=lab 
+    rgb=[[54, 35, 42], [113, 70, 84], [157, 122, 149], [244, 178, 155]]
+    hsv=[[337, 35, 21], [340, 39, 44], [314, 22, 62], [15, 36, 96]]
+5. 5.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[137, 157, 36], [60, 83, 6]]
+    hsv=[[70, 77, 62], [78, 93, 32]]
+6. 6.jpg: n=3, algorithm=kmeans, color_space=lab 
+    rgb=[[236, 195, 199], [193, 130, 146], [50, 59, 95]]
+    hsv=[[354, 17, 93], [345, 32, 76], [228, 48, 37]]
+7. 7.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[79, 79, 79], [148, 148, 148]]
+    hsv=[[323, 0, 31], [330, 0, 58]]
+8. 8.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[46, 46, 46], [216, 216, 216]]
+    hsv=[[323, 0, 18], [180, 0, 85]]
+9. 9.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[49, 60, 89], [211, 174, 78]]
+    hsv=[[223, 45, 35], [44, 63, 83]]
+10. 10.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[151, 176, 203], [77, 102, 132]]
     hsv=[[211, 26, 80], [213, 42, 52]]
-11. 11.jpg: n=3, algorithm=kmeans 
-    rgb=[[107, 163, 100], [76, 115, 59], [172, 140, 176]]
-    hsv=[[113, 38, 64], [101, 48, 45], [294, 20, 69]]
-12. 12.jpg: n=4, algorithm=kmeans 
-    rgb=[[105, 100, 97], [74, 72, 76], [215, 180, 83], [224, 173, 12]]
-    hsv=[[20, 8, 41], [263, 6, 30], [44, 62, 84], [46, 95, 88]]
+11. 11.jpg: n=3, algorithm=kmeans, color_space=lab 
+    rgb=[[91, 131, 97], [102, 157, 74], [166, 90, 154]]
+    hsv=[[129, 30, 51], [100, 53, 61], [309, 45, 65]]
+12. 12.jpg: n=4, algorithm=kmeans, color_space=lab 
+    rgb=[[79, 80, 93], [109, 97, 81], [225, 174, 26], [213, 181, 86]]
+    hsv=[[235, 15, 37], [35, 26, 43], [45, 88, 88], [45, 60, 84]]
 ```
 
 
@@ -71,13 +78,13 @@ Output:
 Sorted 12 images:
    1. input/tutorial/4.jpg
    2. input/tutorial/6.jpg
-   3. input/tutorial/12.jpg
-   4. input/tutorial/2.jpg
-   5. input/tutorial/5.jpg
-   6. input/tutorial/11.jpg
-   7. input/tutorial/10.jpg
-   8. input/tutorial/1.jpg
-   9. input/tutorial/9.jpg
+   3. input/tutorial/2.jpg
+   4. input/tutorial/5.jpg
+   5. input/tutorial/11.jpg
+   6. input/tutorial/10.jpg
+   7. input/tutorial/1.jpg
+   8. input/tutorial/9.jpg
+   9. input/tutorial/12.jpg
   10. input/tutorial/8.jpg
   11. input/tutorial/7.jpg
   12. input/tutorial/3.jpg
@@ -113,7 +120,7 @@ Image 1 | Image 2 | image 3
 
 
 ### Example 5
-Notice something about the results in the previous example? Many of the computed dominant colors are quite similar. (You probably saw warnings about this in the console after you ran this command.) This dominant color detection algorithm only works well for determining the _single_ most dominant color. 
+Notice something about the results in the previous example? Many of the computed dominant colors are quite similar. (You probably saw a warning about this in the console after you ran this command.) This dominant color detection algorithm only works well for determining the _single_ most dominant color. 
 
 To do that, we can use the `--n_colors` argument. 
 
@@ -294,42 +301,42 @@ $ colortools input/tutorial --summary --dominant_colors_remapped --spectrum --co
 Summary printout: 
 ```
 Analyzed image summary:
-1. 4.jpg: n=4, algorithm=kmeans 
-    rgb=[[56, 35, 42], [111, 71, 89], [156, 120, 145], [238, 176, 157]]
-    hsv=[[340, 37, 22], [333, 36, 44], [318, 23, 61], [14, 34, 93]]
-2. 6.jpg: n=3, algorithm=kmeans 
-    rgb=[[236, 194, 198], [190, 128, 145], [49, 59, 95]]
-    hsv=[[354, 18, 92], [344, 32, 74], [227, 48, 37]]
-3. 12.jpg: n=4, algorithm=kmeans 
-    rgb=[[105, 100, 97], [74, 72, 76], [215, 180, 83], [224, 173, 12]]
-    hsv=[[20, 8, 41], [263, 6, 30], [44, 62, 84], [46, 95, 88]]
-4. 2.jpg: n=2, algorithm=kmeans 
-    rgb=[[203, 155, 72], [130, 95, 42]]
-    hsv=[[38, 64, 79], [36, 68, 51]]
-5. 5.jpg: n=2, algorithm=kmeans 
-    rgb=[[68, 92, 5], [146, 165, 39]]
-    hsv=[[76, 95, 36], [69, 76, 65]]
-6. 11.jpg: n=3, algorithm=kmeans 
-    rgb=[[107, 163, 100], [76, 115, 59], [172, 140, 176]]
-    hsv=[[113, 38, 64], [101, 48, 45], [294, 20, 69]]
-7. 10.jpg: n=2, algorithm=kmeans 
-    rgb=[[151, 176, 203], [77, 103, 133]]
+1. 4.jpg: n=4, algorithm=kmeans, color_space=lab 
+    rgb=[[54, 35, 42], [113, 70, 84], [157, 122, 149], [244, 178, 155]]
+    hsv=[[337, 35, 21], [340, 39, 44], [314, 22, 62], [15, 36, 96]]
+2. 6.jpg: n=3, algorithm=kmeans, color_space=lab 
+    rgb=[[236, 195, 199], [193, 130, 146], [50, 59, 95]]
+    hsv=[[354, 17, 93], [345, 32, 76], [228, 48, 37]]
+3. 2.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[210, 159, 73], [140, 105, 51]]
+    hsv=[[38, 65, 82], [36, 64, 55]]
+4. 5.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[137, 157, 36], [60, 83, 6]]
+    hsv=[[70, 77, 62], [78, 93, 32]]
+5. 11.jpg: n=3, algorithm=kmeans, color_space=lab 
+    rgb=[[91, 131, 97], [102, 157, 74], [166, 90, 154]]
+    hsv=[[129, 30, 51], [100, 53, 61], [309, 45, 65]]
+6. 10.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[151, 176, 203], [77, 102, 132]]
     hsv=[[211, 26, 80], [213, 42, 52]]
-8. 1.jpg: n=2, algorithm=kmeans 
-    rgb=[[0, 70, 185], [3, 45, 133]]
-    hsv=[[217, 100, 73], [221, 98, 52]]
-9. 9.jpg: n=2, algorithm=kmeans 
-    rgb=[[48, 60, 89], [208, 174, 75]]
-    hsv=[[222, 46, 35], [44, 64, 82]]
-10. 8.jpg: n=2, algorithm=kmeans 
-    rgb=[[47, 47, 47], [221, 221, 221]]
-    hsv=[[0, 0, 18], [0, 0, 87]]
-11. 7.jpg: n=2, algorithm=kmeans 
-    rgb=[[81, 81, 81], [152, 152, 152]]
-    hsv=[[0, 0, 32], [0, 0, 59]]
-12. 3.jpg: n=2, algorithm=kmeans 
-    rgb=[[229, 229, 229], [181, 181, 181]]
-    hsv=[[0, 0, 90], [0, 0, 71]]
+7. 1.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[1, 67, 180], [19, 40, 121]]
+    hsv=[[218, 100, 70], [228, 84, 47]]
+8. 9.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[49, 60, 89], [211, 174, 78]]
+    hsv=[[223, 45, 35], [44, 63, 83]]
+9. 12.jpg: n=4, algorithm=kmeans, color_space=lab 
+    rgb=[[79, 80, 93], [109, 97, 81], [225, 174, 26], [213, 181, 86]]
+    hsv=[[235, 15, 37], [35, 26, 43], [45, 88, 88], [45, 60, 84]]
+10. 8.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[46, 46, 46], [216, 216, 216]]
+    hsv=[[323, 0, 18], [180, 0, 85]]
+11. 7.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[79, 79, 79], [148, 148, 148]]
+    hsv=[[323, 0, 31], [330, 0, 58]]
+12. 3.jpg: n=2, algorithm=kmeans, color_space=lab 
+    rgb=[[229, 229, 229], [180, 180, 180]]
+    hsv=[[330, 0, 90], [180, 0, 70]]
 ```
 
 Selected dominant color graphics with remapping: 
@@ -347,3 +354,30 @@ Collage graphic:
 <img src="example-images/17/5.jpg" width="500">
 
 Finally, sorted images are saved to a folder named by the current timestamp in `output/sorted/`.
+
+### Example 18
+
+As of version 1.1.0, the default color space for all internal processing is [L\*a\*b*](https://en.wikipedia.org/wiki/CIELAB_color_space). However, you can still use the older RGB processing. 
+
+
+```
+$ colortools input/tutorial --summary --dominant_colors_remapped --color-space rgb
+```
+
+Image 1: 
+
+RGB | L\*a\*b*
+:------:|:-------:
+<img src="example-images/18/1-rgb.jpg" width="250">|<img src="example-images/18/1-lab.jpg" width="250">
+
+Image 2: 
+
+RGB | L\*a\*b*
+:------:|:-------:
+<img src="example-images/18/2-rgb.jpg" width="250">|<img src="example-images/18/2-lab.jpg" width="250">
+
+Image 3: 
+
+RGB | L\*a\*b*
+:------:|:-------:
+<img src="example-images/18/3-rgb.jpg" width="250">|<img src="example-images/18/3-lab.jpg" width="250">

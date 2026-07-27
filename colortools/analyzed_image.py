@@ -33,6 +33,7 @@ class AnalyzedImage:
         dominant_color_algorithm: util.DominantColorAlgorithm,
         n_colors: int,
         auto_n_heuristic: NColorsHeuristic,
+        color_space: util.ColorSpace = util.ColorSpace.LAB,
     ):
         """Create an instance of this class.
 
@@ -45,11 +46,14 @@ class AnalyzedImage:
                 determining dominant colors.
             auto_n_heuristic (NHeuristic): The heuristic to use for automatically determining the number of
                 colors to find in this image. More useful when using KMEANS for determining dominant colors.
+            color_space (util.ColorSpace, optional): The color space to cluster in when using KMEANS for
+                determining dominant colors. Ignored when using HUE_DIST. Defaults to util.ColorSpace.LAB.
         """
         if isinstance(image_path, str):
             image_path = Path(image_path)
         self.image_path = image_path
         self.dominant_color_algorithm = dominant_color_algorithm
+        self.color_space = color_space
 
         # set image, dimensions, and orientation
         pil_image = Image.open(image_path)
@@ -80,11 +84,6 @@ class AnalyzedImage:
             self.n_colors = n_colors
 
         if self.dominant_color_algorithm == util.DominantColorAlgorithm.HUE_DIST:
-            if self.n_colors > 1:
-                logging.warning(
-                    f"Using {self.dominant_color_algorithm.value} with n_colors={self.n_colors}; "
-                    "dominant colors may be very similar."
-                )
             self.dominant_colors_rgb, self.dominant_colors_hsv = self.get_dominant_colors_hue_dist(self.n_colors)
         elif self.dominant_color_algorithm == util.DominantColorAlgorithm.KMEANS:
             self.dominant_colors_rgb, self.dominant_colors_hsv = self.get_dominant_colors_kmeans(self.n_colors)
@@ -97,6 +96,9 @@ class AnalyzedImage:
         Args:
             n_colors (int): The number of dominant colors to compute.
 
+        Raises:
+            ValueError: Raised if n_colors exceeds the number of distinct hues available.
+
         Returns:
             Tuple[List, List]: The dominant colors (RGB values, HSV values).
         """
@@ -104,11 +106,18 @@ class AnalyzedImage:
         hue_dist = [
             (hue, hsv_list) for hue, hsv_list in sorted(hue_dist.items(), key=lambda item: len(item[1]), reverse=True)
         ]
+        if n_colors > len(hue_dist):
+            raise ValueError(
+                f"n_colors={n_colors} exceeds the number of distinct hues available ({len(hue_dist)}) "
+                "for the hue_dist algorithm."
+            )
 
         dominant_colors_hsv = []
+        hue_counts = []
         for i in range(n_colors):
             current_hue_list = hue_dist[i]
             hue = current_hue_list[0]
+            hue_counts.append(len(current_hue_list[1]))
             if len(current_hue_list[1]) > 0:
                 avg_sat = np.median([hsv[1] for hsv in current_hue_list[1]])
                 avg_val = np.median([hsv[2] for hsv in current_hue_list[1]])
@@ -121,10 +130,17 @@ class AnalyzedImage:
 
         dominant_colors_hsv = util.normalize_8bit_hsv(dominant_colors_hsv)
         dominant_colors_rgb = util.hsv_to_rgb(dominant_colors_hsv)
+        total_selected = sum(hue_counts)
+        proportions = [count / total_selected if total_selected > 0 else 0 for count in hue_counts]
+        self.cluster_histogram = list(zip(dominant_colors_rgb, proportions))
         return dominant_colors_rgb, dominant_colors_hsv
 
     def get_dominant_colors_kmeans(self, n_colors: int) -> Tuple[List, List]:
         """Get dominant colors using the KMEANS algorithm.
+
+        Clusters in `self.color_space`. If using Lab rather than RGB, the image is converted to Lab before
+        clustering. `cluster_histogram` and the returned colors are always in RGB, regardless of clustering
+        color space.
 
         Args:
             n_colors (int): The number of dominant colors to compute.
@@ -132,8 +148,12 @@ class AnalyzedImage:
         Returns:
             Tuple[List, List]: The dominant colors (RGB values, HSV values).
         """
-        self.model, self.predicted = fit_and_predict(self.get_as_array(crop_center=True), n_colors)
-        self.cluster_histogram = build_histogram_from_clusters(self.model)
+        image_data = self.get_as_array(crop_center=True)
+        if self.color_space == util.ColorSpace.LAB:
+            image_data = util.rgb_to_lab(image_data)
+
+        self.model, self.predicted = fit_and_predict(image_data, n_colors)
+        self.cluster_histogram = build_histogram_from_clusters(self.model, self.color_space)
         dominant_colors_rgb = [rgb.tolist() for rgb, _ in self.cluster_histogram]
         dominant_colors_hsv = util.rgb_to_hsv(dominant_colors_rgb)
         return dominant_colors_rgb, dominant_colors_hsv
@@ -230,9 +250,16 @@ class AnalyzedImage:
                 height, width = other.height, other.width
                 other_rgb_data = other.get_as_array().reshape((height * width, 3))
 
-            other_predicted = self.model.predict(other_rgb_data)
+            model_input = other_rgb_data
+            if self.color_space == util.ColorSpace.LAB:
+                model_input = util.rgb_to_lab(other_rgb_data)
+
+            other_predicted = self.model.predict(model_input)
             remapped_image = np.array([target_colors[i] for i in other_predicted])
-            return Image.fromarray(np.uint8(remapped_image.reshape((height, width, 3))))
+            if self.color_space == util.ColorSpace.LAB:
+                remapped_image = util.lab_to_rgb(remapped_image)
+            remapped_image = np.round(remapped_image).astype(np.uint8).reshape((height, width, 3))
+            return Image.fromarray(remapped_image)
         else:
             raise ValueError(f"Cannot remap images using the {self.dominant_color_algorithm.value} algorithm")
 
@@ -253,7 +280,9 @@ class AnalyzedImage:
 
         dom_color_hsv = util.round_array(self.get_dominant_color(hsv=True))
         dom_hue, dom_sat, dom_val = dom_color_hsv[0], dom_color_hsv[1], dom_color_hsv[2]
-        filename += f"{base}_hue={dom_hue}_sat={dom_sat}_val={dom_val}_n={self.n_colors}.jpg"
+        filename += (
+            f"{base}_hue={dom_hue}_sat={dom_sat}_val={dom_val}_n={self.n_colors}_cs={self.color_space.value}.jpg"
+        )
         return filename
 
     def get_pretty_string(self) -> str:
@@ -262,7 +291,10 @@ class AnalyzedImage:
         Returns:
             str: A pretty string representation of this analyzed image.
         """
-        out = f"{self.image_path.name}: n={self.n_colors}, algorithm={self.dominant_color_algorithm.value} \n"
+        out = (
+            f"{self.image_path.name}: n={self.n_colors}, algorithm={self.dominant_color_algorithm.value}, "
+            f"color_space={self.color_space.value} \n"
+        )
         out += f"    rgb={util.round_array(self.dominant_colors_rgb)}\n"
         out += f"    hsv={util.round_array(self.dominant_colors_hsv)}"
         return out

@@ -103,8 +103,7 @@ def auto_n_hue_binned(image_hsv: np.ndarray) -> int:
     - reduce the provided image to a long list of hues
     - sort the list of hues by color by distributing them into bins that are evenly spaced across the possible hue
     spectrum (i.e. [0, 30], [30, 60], ..., [150, 180])
-    - determine which bin has most hues represented (which bin is the most full); set this to hue_bin_max
-    - set `n` equal to the number of bins whose counts are within one standard deviation hue_bin_max
+    - set `n` equal to the number of bins that have at least one hue represented (i.e. any non-empty bin)
 
     Args:
         image_rgb (np.ndarray): The image to generate `n` for.
