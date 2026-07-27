@@ -1,10 +1,32 @@
 # Changelog
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.0] - In Progress
+### Added
+- New `--color_space`/`--color-space` CLI option (`rgb` or `lab`), letting the `kmeans` algorithm cluster in CIE L\*a\*b\* space instead of RGB for more perceptually-uniform dominant colors. Ignored with a warning if the algorithm isn't `kmeans`. Default is now `lab`, for both the CLI and direct `AnalyzedImage`/`build_histogram_from_clusters` usage. Color space is also now included in generated filenames (`AnalyzedImage.generate_filename`) and in the `--summary` output (`AnalyzedImage.get_pretty_string`).
+- Additional tests for `hue_dist`'s `cluster_histogram` and its `n_colors` bounds check.
+- Test coverage for `visualization.py` and `cli.py` (previously untested); overall coverage up from 53% to 97%.
+- One-line docstrings on every test and helper function across the test suite.
+
+### Changed
+- Unit test improvements and tightening.
+- The "`Using hue_dist with n_colors > 1; dominant colors may be very similar`" warning is now logged once upfront in `check_args`, instead of once per image during processing (previously spammed the progress bar on every image analyzed with `hue_dist`).
+
+### Fixed
+- Bug in which `--exclude_color` was a silent no-op due to a variable name typo in the CLI.
+- Crash (`AttributeError`) when using `--algorithm hue_dist` with `--spectrum_all_colors`.
+- Crash (`IndexError`) when `--n_colors` exceeded the number of available hue bins under `--algorithm hue_dist`; now raises a clear `ValueError`.
+- Bug in which `round_array` used `np.uint`, silently clamping negative values to `0` instead of rounding them.
+- Bug in which `get_remapped_image` cast pixels to `np.uint8` directly, truncating instead of rounding (e.g. `127.9` became `127` instead of `128`), biasing remapped images slightly dark relative to their true cluster colors.
+- Bug in which `get_histogram_as_bar` reversed `AnalyzedImage.cluster_histogram` in place instead of copying it.
+
+---
+
 ## [1.0.1] - 23 January 2023
 ### Fixed
 - Updated `scikit-learn` version in `requirements.txt` to fix `TypeError`
 
+---
 
 ## [1.0.0] - 8 December 2022
 ### Added 
@@ -27,6 +49,7 @@ All notable changes to this project will be documented in this file. The format 
 - Bug in which `--dominant_colors_remapped` was not valid as a single option. 
 - Erroneous type references of `np.array` changed to `np.ndarray` in docstrings.
 
+---
 
 ## [1.0.0-beta.2] - 6 December 2022
 ### Added 
@@ -50,6 +73,7 @@ All notable changes to this project will be documented in this file. The format 
 - Minor bug that caused errors when instantiating `AnalyzedImage` for low-saturation images. 
 - Enum parsing error for algorithm argument in CLI.
 
+---
 
 ## [1.0.0-beta.1] - 10 Jul 2022
 ### Added 
@@ -61,6 +85,7 @@ All notable changes to this project will be documented in this file. The format 
 - Improved logging.
 - Updated documentation.
 
+---
 
 ## [0.3.0] - 10 Jul 2022
 ### Changed 
@@ -74,6 +99,7 @@ All notable changes to this project will be documented in this file. The format 
 - Improved logging
 - Renamed main directory from `colorsort` to `colortools`
 
+---
 
 ## [0.2.0] - 9 Jul 2022
 ### Added
@@ -88,6 +114,7 @@ All notable changes to this project will be documented in this file. The format 
 - Tons of refactoring, addition of docstrings, and general code cleanup.
 - Improved handling of floats vs. ints (by using lazy rounding).
 
+---
 
 ## [0.1.0] - 2 Jun 2022
 ### Added
