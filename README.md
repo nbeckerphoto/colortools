@@ -22,7 +22,7 @@ usage: colortools [-h] [--version] [--algorithm {hue_dist,kmeans}]
                   [--sort_anchor SORT_ANCHOR] [--save_sorted] [--display] [--verbose]
                   [--output_dir OUTPUT_DIR] [--dominant_colors]
                   [--dominant_colors_remapped] [--spectrum] [--spectrum_all_colors]
-                  [--collage] [--summary]
+                  [--collage] [--summary] [--json]
                   input
 
 Analyze and sort images by their dominant colors.
@@ -71,6 +71,9 @@ options:
                         include all detected dominant colors in the spectrum graphic
   --collage             save a collage of the analyzed images
   --summary             print a summary of the analyzed images to the console
+  --json                print per-image results (path, sort index, dominant colors) as a
+                        single JSON object to stdout, instead of the normal human-
+                        readable output; intended for scripting/integration use
 ```
 
 ### Building from Source
@@ -86,6 +89,8 @@ Then, to install the local build file using `pip`:
 $ pip install dist/nbp_colortools-VERSION-none-any.whl
 ```
 
+To rebuild/install after updates, rebuild and then use pip's `--force-reinstall` flag. 
+
 ### Tests and Coverage
 Run the full test suite with `pytest .`. 
 
@@ -96,4 +101,4 @@ $ coverage run -m pytest tests && coverage html && open htmlcov/index.html
 ```
 
 ### Known Issues
-- First run after installation is _slow_.
+- First run after installation can be _slow_ in some environments.

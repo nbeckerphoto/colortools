@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. The format 
 ## [1.1.0] - In Progress
 ### Added
 - New `--color_space`/`--color-space` CLI option (`rgb` or `lab`), letting the `kmeans` algorithm cluster in CIE L\*a\*b\* space instead of RGB for more perceptually-uniform dominant colors. Ignored with a warning if the algorithm isn't `kmeans`. Default is now `lab`, for both the CLI and direct `AnalyzedImage`/`build_histogram_from_clusters` usage. Color space is also now included in generated filenames (`AnalyzedImage.generate_filename`) and in the `--summary` output (`AnalyzedImage.get_pretty_string`).
+- New `--json` CLI flag to print a single JSON object to stdout (path, sort index, dominant RGB/HSV colors, and `is_bw` per image) instead of the normal human-readable output. Suppresses all other stdout output (including `--verbose`/`--summary` text) so stdout is safe to parse programmatically; intended for scripting/integration use.
 - Additional tests for `hue_dist`'s `cluster_histogram` and its `n_colors` bounds check.
 - Test coverage for `visualization.py` and `cli.py` (previously untested); overall coverage up from 53% to 97%.
 - One-line docstrings on every test and helper function across the test suite.

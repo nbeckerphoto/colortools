@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 from pathlib import Path
@@ -148,6 +149,14 @@ def test_check_args_no_output_action_errors(caplog):
     assert "No output action selected" in caplog.text
 
 
+def test_check_args_json_counts_as_output_action():
+    """--json alone (with no --summary/--sort/etc.) is a sufficient output action."""
+    args = cli.parse_args([TEST_IMAGE_DIR, "--json"])
+    checked = cli.check_args(args)
+    assert checked is not None
+    assert checked.json is True
+
+
 # --- print_verbose_output ---
 
 
@@ -180,6 +189,47 @@ def test_run_invalid_args_returns_without_crash(tmp_path, monkeypatch, caplog):
     with caplog.at_level(logging.ERROR):
         run_cli(monkeypatch, [str(tmp_path)])  # no output action selected
     assert "No output action selected" in caplog.text
+
+
+def test_run_json_no_images_found(tmp_path, monkeypatch, capsys):
+    """--json on an empty directory prints a valid JSON object with an empty images list."""
+    empty_dir = tmp_path / "empty"
+    empty_dir.mkdir()
+    run_cli(monkeypatch, [str(empty_dir), "--json"])
+    captured = capsys.readouterr()
+    assert json.loads(captured.out) == {"images": []}
+
+
+def test_run_json_output_structure(tmp_path, monkeypatch, capsys):
+    """--json emits one entry per input image, in sorted order, with path and color fields."""
+    input_names = [path.name for path in collect_jpg_paths(TEST_IMAGE_DIR)]
+    run_cli(monkeypatch, [TEST_IMAGE_DIR, "--sort", "hue", "--json", "--output_dir", str(tmp_path)])
+    captured = capsys.readouterr()
+
+    # stdout must be *only* the JSON payload, with no interleaved human-readable output
+    payload = json.loads(captured.out)
+
+    images = payload["images"]
+    assert len(images) == len(input_names)
+    assert {Path(entry["path"]).name for entry in images} == set(input_names)
+
+    for i, entry in enumerate(images):
+        assert entry["sort_index"] == i
+        assert len(entry["dominant_color_rgb"]) == 3
+        assert len(entry["dominant_color_hsv"]) == 3
+        assert isinstance(entry["dominant_colors_rgb"], list)
+        assert isinstance(entry["is_bw"], bool)
+
+
+def test_run_json_suppresses_other_output(tmp_path, monkeypatch, capsys):
+    """--json combined with --summary/--verbose still produces stdout that is only the JSON payload."""
+    run_cli(
+        monkeypatch,
+        [TEST_IMAGE_FILE, "--summary", "--verbose", "--json", "--output_dir", str(tmp_path)],
+    )
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)  # raises if any non-JSON text leaked into stdout
+    assert len(payload["images"]) == 1
 
 
 def test_run_summary(tmp_path, monkeypatch, capsys):

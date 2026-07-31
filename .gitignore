@@ -1,6 +1,7 @@
 *.egg-info
 *.jpg
 *.png
+*.spec
 .coverage
 .deprecated/
 .DS_Store

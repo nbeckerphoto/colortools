@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import json
 import logging
 import sys
 from pathlib import Path
@@ -126,6 +127,14 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     )
     parser.add_argument("--collage", action="store_true", help="save a collage of the analyzed images")
     parser.add_argument("--summary", action="store_true", help="print a summary of the analyzed images to the console")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help=(
+            "print per-image results (path, sort index, dominant colors) as a single JSON object to stdout, "
+            "instead of the normal human-readable output; intended for scripting/integration use"
+        ),
+    )
     return parser.parse_args(args)
 
 
@@ -164,10 +173,11 @@ def check_args(args: argparse.Namespace) -> argparse.Namespace:
         or args.dominant_colors_remapped
         or args.spectrum
         or args.collage
+        or args.json
     ):
         logging.error(
             "No output action selected; please select "
-            "--summary, --sort, --save_sorted, --dominant_colors, --dominant_colors_remapped, or --spectrum"
+            "--summary, --sort, --save_sorted, --dominant_colors, --dominant_colors_remapped, --spectrum, or --json"
         )
         return None
     return args
@@ -230,20 +240,49 @@ def print_verbose_output(args: argparse.Namespace):
     print()
 
 
+def build_json_output(analyzed_images: List[AnalyzedImage]) -> dict:
+    """Build a JSON-serializable summary of analyzed images.
+
+    Args:
+        analyzed_images (List[AnalyzedImage]): The analyzed images to summarize, in their final
+            (possibly sorted) order.
+
+    Returns:
+        dict: A dict with an "images" key holding one entry per image, in the order provided.
+    """
+    return {
+        "images": [
+            {
+                "path": str(image.image_path),
+                "sort_index": i,
+                "dominant_color_rgb": image.get_dominant_color(hsv=False, round=True),
+                "dominant_color_hsv": image.get_dominant_color(hsv=True, round=True),
+                "dominant_colors_rgb": image.get_dominant_colors(hsv=False, round=True),
+                "is_bw": image.is_bw(),
+            }
+            for i, image in enumerate(analyzed_images)
+        ]
+    }
+
+
 def run():
     args = check_args(parse_args(sys.argv[1:]))
     if args:
         timstamp_str = util.get_timestamp_string()
         jpg_paths = util.collect_jpg_paths(args.input)
 
-        if args.verbose:
+        if args.verbose and not args.json:
             print_verbose_output(args)
 
         n_jpg_paths = len(jpg_paths)
         if n_jpg_paths == 0:
-            print(f"No images found in {args.input}")
+            if args.json:
+                print(json.dumps(build_json_output([])))
+            else:
+                print(f"No images found in {args.input}")
         else:
-            print(f"Analyzing {n_jpg_paths} images...")
+            if not args.json:
+                print(f"Analyzing {n_jpg_paths} images...")
             analyzed_images = []
             edge_crop = 0 if args.skip_analysis_crop else config.DEFAULT_EDGE_CROP
             for jpg_path in tqdm(jpg_paths, ascii=True):
@@ -274,8 +313,9 @@ def run():
                     for i, analyzed_image in enumerate(analyzed_images):
                         sorted_image_dest = Path(dest_dir, analyzed_image.generate_filename(i, "sorted"))
                         visualization.save(analyzed_image, sorted_image_dest)
-                    print(f"Saved {n_sorted} sorted images to {dest_dir}")
-                else:
+                    if not args.json:
+                        print(f"Saved {n_sorted} sorted images to {dest_dir}")
+                elif not args.json:
                     print(f"Sorted {n_sorted} images:")
                     for i, image in enumerate(analyzed_images):
                         print(f"{i + 1:4.0f}. {image.image_path}")
@@ -291,7 +331,8 @@ def run():
                         include_remapped_image=args.dominant_colors_remapped,
                         display=args.display,
                     )
-                print(f"Saved dominant color graphics to {dest_dir}")
+                if not args.json:
+                    print(f"Saved dominant color graphics to {dest_dir}")
 
             if args.spectrum:
                 filename = f"{timstamp_str}_spectrum.jpg"
@@ -303,7 +344,8 @@ def run():
                     spectrum_dest,
                     args.display,
                 )
-                print(f"Saved spectrum graphic to {spectrum_dest}")
+                if not args.json:
+                    print(f"Saved spectrum graphic to {spectrum_dest}")
 
             if args.collage:
                 filename = f"{timstamp_str}_collage.jpg"
@@ -311,9 +353,13 @@ def run():
                 visualization.save_image_collage(
                     analyzed_images, config.DEFAULT_COLLAGE_WIDTH, collage_dest, args.display
                 )
-                print(f"Saved collage graphic to {collage_dest}")
+                if not args.json:
+                    print(f"Saved collage graphic to {collage_dest}")
 
-            if args.summary:
+            if args.summary and not args.json:
                 print("\nAnalyzed image summary:")
                 for i, image in enumerate(analyzed_images):
                     print(f"{i + 1}. {image.get_pretty_string()}")
+
+            if args.json:
+                print(json.dumps(build_json_output(analyzed_images)))
